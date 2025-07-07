@@ -733,32 +733,42 @@ def refine_by_columns(srcDir, dstDir, columnList, targetList):
     fileNames = os.listdir(srcDir)
 
     targetDf = pd.DataFrame(columns=targetList)
-    for i in range(1, len(fileNames)):
-        prevPath = f"{srcDir}/{fileNames[i-1]}"
-        nextPath = f"{srcDir}/{fileNames[i]}"
-        prevDf = pd.read_csv(prevPath)[columnList]
+    for i in range(0, len(fileNames)-1):
+        curPath = f"{srcDir}/{fileNames[i]}"
+        nextPath = f"{srcDir}/{fileNames[i+1]}"
+        curDf = pd.read_csv(curPath)[columnList]
         nextDf = pd.read_csv(nextPath)[columnList]
 
+        for l in range(curDf.last_valid_index()):
+            nextL = 0
+            curData = curDf["jobType"].values[l]
+            nextDataList = nextDf["jobType"].values
+            if((curData in nextDataList) == True):
+                while(curData != nextDataList[nextL]):
+                    nextL += 1
+            
+            newList = [curDf["jobType"][l]]
+            for j in columnList:
+                if j == "jobType":
+                    continue
 
-        newList = [prevDf["jobType"][0]]
-        for j in columnList:
-            if j == "jobType":
-                continue
-
-            d = 0
-            if int(nextDf[j][0]) > int(prevDf[j][0]):
-                d = int(prevDf[j][0]) / int(nextDf[j][0])
-                d = 1 - d
-                d *= 100
-            else:
-                d = int(nextDf[j][0]) / int(prevDf[j][0])
-                d = d - 1
-                d *= 100
-            newList.append(f"{d:.6f}")
-        print(i-1)
-        targetDf.loc[i-1] = newList
-        
-    targetDf.to_csv("./asd.csv")
+                d = 0
+                nextData = int(nextDf[j][nextL])
+                curData = int(curDf[j][l])
+                if nextData > curData:
+                    if curData != 0:
+                        d = nextData / curData
+                        d = 1 - d
+                        d *= 100
+                else:
+                    if nextData != 0:
+                        d =  curData / nextData
+                        d = d - 1
+                        d *= 100
+                newList.append(f"{d:.2f}")
+            targetDf.loc[l] = newList
+        numString = str(i+1).zfill(2)
+        targetDf.to_csv(f"{dstDir}/{numString}.csv", index=False)
 
 
     pass
@@ -781,8 +791,6 @@ def refine_by_columns(srcDir, dstDir, columnList, targetList):
 # workerPercentagePlus("./resources/dev02")
 # show_percentage(r"D:\myproject\GAIProject1\resources\Preprocess\dev02P\workerPercentage","9", 0)
 
-columnList = ["jobType", "workerCount", "ageGte40Count", "minSalary","maxSalary","meanSalary"]
-targetList = ["jobType", "nextWorkerCountRate", "nextAgeGte40Rate","nextMinSalaryRate","nextMaxSalaryRate","nextMeanSalaryRate"]
-# targetList = [다음 40대이상 비율, 임금 변화율]
-
-refine_by_columns(f"./resources/dev02", "./", columnList, targetList)
+# columnList = ["jobType", "workerCount", "ageGte40Count", "minSalary","maxSalary","meanSalary"]
+# targetList = ["jobType", "nextWorkerCountRate", "nextAgeGte40Rate","nextMinSalaryRate","nextMaxSalaryRate","nextMeanSalaryRate"]
+# refine_by_columns(f"./resources/dev02", "./resources/refine2", columnList, targetList)
