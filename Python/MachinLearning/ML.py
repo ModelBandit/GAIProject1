@@ -27,41 +27,100 @@ def build_data_path():
 
 set_project_root("D:/myproject/GAIProject1")
 
-dataDict = dict()
-selectColumnList = ["workerCount","prevWorkerCount","minSalary","maxSalary","meanSalary"]
-
-for n in fileNames:
-    path = f"{directory}/{n}"
-    # print(path)
-    
-    jobtypes = pd.read_csv(path)["jobType"]
-    df = pd.read_csv(path)[selectColumnList]
-    
-    for j in range(len(jobtypes)):
-        t = str(jobtypes[j])
-        if(t in dataDict.keys()):
-            dataDict[t].append(df.iloc[j])
-            # print(len(dataDict[t]))
-        else:
-            dataDict[t] = [df.iloc[j]]
-            # print(dataDict[t])
-
-for i in dataDict.keys():
-    print(f"{i} - {len(dataDict[i])}")
-    print(dataDict[i])
 
 import matplotlib.pyplot as plt
-keys = [*dataDict.keys()]
 
-d = dataDict[keys[0]]
+def visualize(keyindex):
+    dataDict = dict()
+    selectColumnList = ["workerCount","minSalary","maxSalary","meanSalary"]
 
-xList = []
-yList = []
-for i in range(len(d)):
-    x = d[i]["minSalary"]
-    y = d[i]["maxSalary"]
-    xList.append(x)
-    yList.append(y)
-plt.scatter(xList,yList)
+    for n in fileNames:
+        path = f"{directory}/{n}"
+        # print(path)
+        
+        jobtypes = pd.read_csv(path)["jobType"]
+        df = pd.read_csv(path)[selectColumnList]
+        
+        for j in range(len(jobtypes)):
+            t = str(jobtypes[j])
+            if(t in dataDict.keys()):
+                dataDict[t].append(df.iloc[j])
+                # print(len(dataDict[t]))
+            else:
+                dataDict[t] = [df.iloc[j]]
+                # print(dataDict[t])
 
-plt.show()
+    # for i in dataDict.keys():
+        # print(f"{i} - {len(dataDict[i])}")
+        # print(dataDict[i])
+
+    keys = [*dataDict.keys()]
+    k = keys[keyindex]
+    d = dataDict[k]
+    plt.title(k)
+    countList = []
+    minList = []
+    maxList = []
+    meanList = []
+
+    for i in range(len(d)):
+        count = i
+        mis = d[i]["minSalary"]
+        mas = d[i]["maxSalary"]
+        mean = d[i]["meanSalary"]
+        countList.append(count)
+        minList.append(mis)
+        maxList.append(mas)
+        meanList.append(mean)
+    plt.scatter(countList,minList,c="red")
+    plt.scatter(countList,maxList,c="blue")
+    plt.scatter(countList,meanList,c="yellow")
+
+    plt.show()
+
+import numpy as np
+
+def ml():
+    dataDict = dict()
+    selectColumnList = ["workerCount","minSalary","maxSalary","meanSalary"]
+
+    for n in fileNames:
+        path = f"{directory}/{n}"
+        # print(path)
+        
+        jobtypes = pd.read_csv(path)["jobType"]
+        df = pd.read_csv(path)[selectColumnList]
+        
+        for j in range(len(jobtypes)):
+            t = str(jobtypes[j])
+            if(t in dataDict.keys()):
+                dataDict[t].append(df.iloc[j])
+                # print(len(dataDict[t]))
+            else:
+                dataDict[t] = [df.iloc[j]]
+                # print(dataDict[t])
+
+    # for i in dataDict.keys():
+        # print(f"{i} - {len(dataDict[i])}")
+        # print(dataDict[i])
+
+    keys = [*dataDict.keys()]
+    k = keys[keyindex]
+    d = dataDict[k]
+    plt.title(k)
+    countList = []
+    minList = []
+    maxList = []
+    meanList = []
+
+    for i in range(len(d)):
+        count = i
+        mis = d[i]["minSalary"]
+        mas = d[i]["maxSalary"]
+        mean = d[i]["meanSalary"]
+        countList.append(count)
+        minList.append(mis)
+        maxList.append(mas)
+        meanList.append(mean)
+
+    data = np.array([])
