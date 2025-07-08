@@ -1,0 +1,4 @@
+jobType,nextWorkerCountRate,nextAgeGte40Rate,nextMinSalaryRate,nextMaxSalaryRate,nextMeanSalaryRate
+172.0,0.0,0.0,0.0,33.24,11.9
+172.0,0.0,0.0,17.6,75.0,33.76
+172.0,0.0,0.0,17.6,5.41,10.56

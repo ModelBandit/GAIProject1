@@ -1,5 +1,6 @@
 import copy
 import os
+import random
 import pandas as pd
 import json
 
@@ -159,7 +160,7 @@ def jobDecoder(jobKey):
 
 # 추적한 대상들을 직종코드 별로 분류함
 def reclassificate_trace_data(path):
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding=encoding) as f:
         loaded = json.load(f)
 
     jobAndCareer = dict()
@@ -193,7 +194,7 @@ def reclassificate_trace_data(path):
 
 # 직종코드별로 분류된 대상들 csv로 저장함 
 def trace_change(path):
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding=encoding) as f:
         loaded = json.load(f)
     
     # 회차 리스트
@@ -243,7 +244,7 @@ def trace_change(path):
                 count += 1
                 
                 
-    df.to_csv("./resources/Preprocess/TraceTarget.csv", index=False ,encoding="utf-8")
+    df.to_csv("./resources/Preprocess/TraceTarget.csv", index=False ,encoding=encoding)
 
 # 이전 회차와 현재 회차 비교하여 임금 변화율 체크함.
 def rate_of_change(path):
@@ -325,7 +326,7 @@ def dev01Dataset():
     pass
 
 
-def dev02Dataset(directory, dstDir, codeList):
+def dev02Dataset(directory, dstPath, codeList):
     fileNames = os.listdir(directory)
 
     dictionary = dict()
@@ -337,7 +338,7 @@ def dev02Dataset(directory, dstDir, codeList):
         numString = f"p{fileName[6:8]}"
         df = pd.read_csv(path)
         for i in range(df.last_valid_index()):
-            code = numString + "0350"
+            code = "0350"
             dfIndex = df.iloc[i]
             try:
                 n = int(dfIndex[code])
@@ -349,7 +350,7 @@ def dev02Dataset(directory, dstDir, codeList):
             # 종사자, 남자수, 청년층
             newList = [1,0,0]
             for codetail in codeList:
-                code = numString + codetail
+                code = codetail
                 info = dfIndex[code]
                 if codetail == "0101" and info == 1:
                     newList[1] = 1
@@ -357,10 +358,14 @@ def dev02Dataset(directory, dstDir, codeList):
                 elif codetail == "0107" and info < 40:
                     newList[2] = 1
             
-            code = numString + "0350"
+            code = "0350"
             key = str(int(dfIndex[code]))
+            
+            # if newList[2] < 1: # 새로하기 그래서 수동으로 하는중
+            #     continue
             if(key in countDictionary.keys()):
                 for di in range(len(newList)):
+
                     countDictionary[key][di] += newList[di]
             else:
                 countDictionary[key] = newList
@@ -370,11 +375,13 @@ def dev02Dataset(directory, dstDir, codeList):
 
     dictionary["keys"] = [*dictionary.keys()]
     dictionary["count"] = len(dictionary["keys"])
-    with open(f"{dstDir}/Data.json", "w") as f:
+    # with open(f"{dstDir}/Data.json", "w") as f:
+    #     json.dump(dictionary, f, indent=2)
+    with open(f"{dstPath}", "w") as f:
         json.dump(dictionary, f, indent=2)
 
 def data_agumentation(directory, dstDir, columnList):
-    with open(f"{directory}/Data.json", "r") as f:
+    with open(f"{directory}/Data.json", "r") as f: # 파일이름 수동조정됨
         loaded = json.load(f)
 
     outkeys = loaded["keys"] # 회차
@@ -423,14 +430,14 @@ def data_agumentation(directory, dstDir, columnList):
 
         for j in range(len(preData)):
             # 직종, 종사자 수, (작년 종사자 수), 남, (작년 남),  여, (작년 여), 40세 미만, (작년 40미만), 40세 이상, (작년 40 이상)
-            for count in range(5, 0, -1): # 직종은 넣었으니 패스
-                c = curData[j][count]
-                p = preData[j][count]
+            # for count in range(5, 0, -1): # 직종은 넣었으니 패스
+            #     c = curData[j][count]
+            #     p = preData[j][count]
 
-                if(count >= 5):
-                    curData[j].append(int(c) - int(p))
-                else:
-                    curData[j].insert(count+1 ,int(c) - int(p))
+            #     if(count >= 5):
+            #         curData[j].append(int(c) - int(p))
+            #     else:
+            #         curData[j].insert(count+1 ,int(c) - int(p))
 
             info = curData[j]
             df.loc[j] = info
@@ -452,6 +459,9 @@ def add_salary_min_max(srcDir, srcFileTemplate, dstDir, dstFileTemplate):
         meanSalarys = []
         jobTypes = dstDf["jobType"]
         for t in jobTypes:
+            ageTag = f"p{numString}0107"
+            # srcDf = srcDf[srcDf[ageTag] < 40] # 수동 조정됨
+
             tag = f"p{numString}0350"
             salarys = srcDf[srcDf[tag] == t]
             
@@ -668,7 +678,7 @@ def workerPercentagePlus(dstDir):
                 else:
                     WorkerKind[j][l].insert(2, 1)
 
-        # with open(f"./asd.json","w", encoding="utf-8") as f:
+        # with open(f"./asd.json","w", encoding=encoding) as f:
         #     json.dump(WorkerKind, f, indent=2)
 
             fw = WorkerKind[j]["info"][2]
@@ -698,7 +708,7 @@ def workerPercentagePlus(dstDir):
             otherDict[j] = WorkerKind[j]
         
         print(*otherDict.keys())
-        with open(f"./resources/Preprocess/dev02P/workerPercentage/workerPercentage{numString}.json","w", encoding="utf-8") as f:
+        with open(f"./resources/Preprocess/dev02P/workerPercentage/workerPercentage{numString}.json","w", encoding=encoding) as f:
             json.dump(otherDict, f, indent=2)
         print(f"{numString} 파일 저장")
 
@@ -709,7 +719,7 @@ def show_percentage(dstDir, jobCode, index):
     allList = []
     path = f"{dstDir}/{fileNames[index]}"
     print(path)
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding=encoding) as f:
         data = json.load(f)
         
     dataDict = data[jobCode]
@@ -749,21 +759,31 @@ def refine_by_columns(srcDir, dstDir, columnList, targetList):
             
             newList = [curDf["jobType"][l]]
             for j in columnList:
+                d = 0
                 if j == "jobType":
                     continue
-
-                d = 0
+                
+                
                 nextData = int(nextDf[j][nextL])
                 curData = int(curDf[j][l])
-                if nextData > curData:
-                    if curData != 0:
-                        d = nextData / curData
-                        d = 1 - d
-                        d *= 100
+                
+                if curData == 0:
+                    newList.append(f"{0}")
+                    continue
+
+                if j == "ageGte40Count":
+                    nextworkerData = int(nextDf["workerCount"][nextL])
+                    curworkerData = int(curDf["workerCount"][l])
+
+                    d = (nextData/nextworkerData) / (curData/curworkerData) 
                 else:
-                    if nextData != 0:
-                        d =  curData / nextData
-                        d = d - 1
+                    d = nextData / curData
+
+                if d > 1:
+                    d = d - 1
+                    d *= 100
+                else:
+                        d = 1 - d
                         d *= 100
                 newList.append(f"{d:.2f}")
             targetDf.loc[l] = newList
@@ -782,15 +802,313 @@ def refine_by_columns(srcDir, dstDir, columnList, targetList):
 # collectCodeList = ["0107", "1642"]
             
 # codeList = ["0101","0107"]
-# dev02Dataset("./resources/dev01/input", "./resources/Preprocess", codeList)
+# dev02Dataset("./resources/input", "./resources/Preprocess/Data.json", codeList)
 
 # columnList = ["jobType", "workerCount", "prevWorkerCount", "maleCount", "prevMaleCount", "femaleCount", "prevFemaleCount", "ageLt40Count", "prevAgeLt40Count", "ageGte40Count", "prevAgeGte40Count"]
-# data_agumentation("./resources/Preprocess/dev02P", "./resources/Preprocess/dev02P/AgumentationData", columnList)
-# add_salary_min_max("./resources/Preprocess/dev01P/haveJob", "haveJob", "./resources/Preprocess/dev02P/AgumentationData", "AgumentationData")
+
+# columnList = ["jobType", "workerCount", "maleCount", "femaleCount", "ageLt40Count", "ageGte40Count"]
+# data_agumentation("./resources/Preprocess", "./resources/dev02/normal/inputData", columnList)
+
+# add_salary_min_max("./resources/Preprocess/dev01P/haveJob", "haveJob", "./resources/dev02/normal/inputData", "AgumentationData")
 # workerPercentage("./resources/dev02")
 # workerPercentagePlus("./resources/dev02")
 # show_percentage(r"D:\myproject\GAIProject1\resources\Preprocess\dev02P\workerPercentage","9", 0)
 
-# columnList = ["jobType", "workerCount", "ageGte40Count", "minSalary","maxSalary","meanSalary"]
-# targetList = ["jobType", "nextWorkerCountRate", "nextAgeGte40Rate","nextMinSalaryRate","nextMaxSalaryRate","nextMeanSalaryRate"]
-# refine_by_columns(f"./resources/dev02", "./resources/refine2", columnList, targetList)
+columnList = ["jobType", "workerCount", "ageGte40Count", "minSalary","maxSalary","meanSalary"]
+targetList = ["jobType", "nextWorkerCountRate", "nextAgeGte40Rate","nextMinSalaryRate","nextMaxSalaryRate","nextMeanSalaryRate"]
+# refine_by_columns(f"./resources/dev02/normal/inputData", f"./resources/dev02/normal/targetData", columnList, targetList)
+
+
+# 사용전에 "수동" 이라고 검색해서 수정할 것
+def fakeSourceData_under():
+    codeList = ["0101","0107"]
+    dev02Dataset("./resources/input", "./resources/Preprocess/underData.json", codeList)
+
+    columnList = ["jobType", "workerCount", "maleCount", "femaleCount", "ageLt40Count", "ageGte40Count"]
+    data_agumentation("./resources/Preprocess", "./resources/dev02/40under/inputData", columnList)
+    add_salary_min_max("./resources/Preprocess/dev01P/haveJob", "haveJob", "./resources/dev02/40under/inputData", "AgumentationData")
+    
+    columnList = ["jobType", "workerCount", "ageGte40Count", "minSalary","maxSalary","meanSalary"]
+    targetList = ["jobType", "nextWorkerCountRate", "nextAgeGte40Rate","nextMinSalaryRate","nextMaxSalaryRate","nextMeanSalaryRate"]
+    refine_by_columns(f"./resources/dev02/40under/inputData", "./resources/dev02/40under/targetData", columnList, targetList)
+
+# 사용전에 "수동" 이라고 검색해서 수정할 것
+def fakeSourceData_on():
+    codeList = ["0101","0107"]
+    dev02Dataset("./resources/input", "./resources/Preprocess/onData.json", codeList)
+
+    columnList = ["jobType", "workerCount", "maleCount", "femaleCount", "ageLt40Count", "ageGte40Count"]
+    data_agumentation("./resources/Preprocess", "./resources/dev02/40on/inputData", columnList)
+    add_salary_min_max("./resources/Preprocess/dev01P/haveJob", "haveJob", "./resources/dev02/40on/inputData", "AgumentationData")
+    
+    columnList = ["jobType", "workerCount", "ageGte40Count", "minSalary","maxSalary","meanSalary"]
+    targetList = ["jobType", "nextWorkerCountRate", "nextAgeGte40Rate","nextMinSalaryRate","nextMaxSalaryRate","nextMeanSalaryRate"]
+    refine_by_columns(f"./resources/dev02/40on/inputData", "./resources/dev02/40on/targetData", columnList, targetList)
+
+def buildFakeInput(srcDir, dstDir):
+    dataKind = ["inputData"]
+    
+    for folderName in dataKind:
+        youngDataDir = f"{srcDir}/40under/{folderName}"
+        oldDataDir = f"{srcDir}/40on/{folderName}"
+        dataDir = f"{srcDir}/normal/{folderName}"
+
+        fileNames = os.listdir(dataDir)
+
+        count = 1
+        for fn in fileNames:
+            fdd = f"{dstDir}/count{str(count).zfill(2)}"
+            if not os.path.exists(fdd):
+                os.makedirs(fdd)
+
+            youngDataPath = f"{youngDataDir}/{fn}"
+            oldDataPath = f"{oldDataDir}/{fn}"
+            dataPath = f"{dataDir}/{fn}"
+
+            df = pd.read_csv(dataPath, encoding=encoding)
+            youngDf = pd.read_csv(youngDataPath, encoding=encoding)
+            oldDf = pd.read_csv(oldDataPath, encoding=encoding)
+
+            for i in range(df.last_valid_index()+1):
+
+                curJobType = int(df["jobType"][i])
+                curYoungDf = youngDf[youngDf["jobType"] == curJobType]
+                curOldDf = oldDf[oldDf["jobType"] == curJobType]
+                if (len(curYoungDf.index) < 1 or len(curOldDf.index) < 1):
+                    continue
+
+                fakeDataDir = f"{fdd}/{folderName}"
+                if not os.path.exists(fakeDataDir):
+                    os.mkdir(fakeDataDir)
+                fakeDataPath = f"{fakeDataDir}/{df["jobType"][i]}.csv"
+
+                columnList = df.columns
+                # print(columnList)
+
+                newDf = pd.DataFrame(columns=columnList)
+
+                newList = []
+                newList.append(curYoungDf.iloc[0])
+                newList.append(curOldDf.iloc[0])
+                newList.append(df.iloc[i])
+
+                youngCount = int(df[columnList[4]][i])
+                oldCount = int(df[columnList[5]][i])
+                if youngCount < 1 or oldCount < 1:
+                    continue
+
+                youngMaleCount = int(curYoungDf[columnList[2]])
+                youngMalePer = youngMaleCount / youngCount
+
+                oldMaleCount = int(curOldDf[columnList[2]])
+                oldMalePer = oldMaleCount / oldCount
+
+                for j in range(1, youngCount):
+                    newOldDf = copy.deepcopy(curOldDf)
+                    per = (j+1) / youngCount
+                    # 종사자
+                    newOldDf[columnList[1]] += j
+                    # 다른 나이대
+                    newOldDf[columnList[4]] += j
+                    
+                    #성별
+                    newMale = 0
+                    newFemale = 0
+                    for l in range(j):
+                        if(newMale < youngMaleCount and newFemale < (youngCount - youngMaleCount)):
+                            realNum = random.random() % 1
+                            if(realNum <= oldMalePer):
+                                newOldDf[columnList[2]] += 1
+                                newMale += 1
+                            else:
+                                newOldDf[columnList[3]] += 1
+                                newFemale += 1
+
+                        elif(newMale < youngMaleCount):
+                            newOldDf[columnList[2]] += 1
+                            newMale += 1
+
+                        else:
+                            newOldDf[columnList[3]] += 1
+                            newFemale += 1
+
+                    # 임금
+                    newOldDf[columnList[6]].iloc[0] = newOldDf[columnList[6]].iloc[0] + float(int(curYoungDf[columnList[6]].iloc[0]) - int(newOldDf[columnList[6]].iloc[0])) * per
+                    newOldDf[columnList[7]].iloc[0] = newOldDf[columnList[7]].iloc[0] + float(int(curYoungDf[columnList[7]].iloc[0]) - int(newOldDf[columnList[7]].iloc[0])) * per
+                    newOldDf[columnList[8]].iloc[0] = newOldDf[columnList[8]].iloc[0] + float(int(curYoungDf[columnList[8]].iloc[0]) - int(newOldDf[columnList[8]].iloc[0])) * per
+                    newList.append(newOldDf.iloc[0])
+                    
+                for j in range(1, oldCount):
+                    newYoungDf = copy.deepcopy(curYoungDf)
+                    per = (j+1) / oldCount
+                    # 종사자
+                    newYoungDf[columnList[1]] += (j)
+                    # 다른 나이대
+                    newYoungDf[columnList[5]] += (j)
+                    
+                    #성별
+                    newMale = 0
+                    newFemale = 0
+                    for l in range(j):
+                        if(newMale < oldMaleCount and newFemale < (oldCount - oldMaleCount)):
+                            realNum = random.random() % 1
+                            if(realNum <= youngMalePer):
+                                newYoungDf[columnList[2]] += 1
+                                newMale += 1
+                            else:
+                                newYoungDf[columnList[3]] += 1
+                                newFemale += 1
+
+                        elif(newMale < youngMaleCount):
+                            newYoungDf[columnList[2]] += 1
+                            newMale += 1
+
+                        else:
+                            newYoungDf[columnList[3]] += 1
+                            newFemale += 1
+
+                    # 임금
+                    newYoungDf[columnList[6]] += (int(curOldDf[columnList[6]]) - newYoungDf[columnList[6]]) * per
+                    newYoungDf[columnList[7]] += (int(curOldDf[columnList[7]]) - newYoungDf[columnList[7]]) * per
+                    newYoungDf[columnList[8]] += (int(curOldDf[columnList[8]]) - newYoungDf[columnList[8]]) * per
+                    newList.append(newYoungDf.iloc[0])
+                
+                for d in range(len(newList)):
+                    newDf.loc[d] = newList[d]
+                    s1 = str(df["jobType"][i])
+                newDf.to_csv(f"{fakeDataPath}", index=False, encoding=encoding)
+            count+=1
+
+def buildFakeTarget(srcDir, dstDir):
+    folderName = "targetData"
+    youngDataDir = f"{srcDir}/40under/{folderName}"
+    oldDataDir = f"{srcDir}/40on/{folderName}"
+    dataDir = f"{srcDir}/normal/{folderName}"
+
+    fileNames = os.listdir(dataDir)
+
+    count = 1
+    for fn in fileNames:
+        fdd = f"{dstDir}/count{str(count).zfill(2)}"
+        if not os.path.exists(fdd):
+            os.makedirs(fdd)
+
+        youngDataPath = f"{youngDataDir}/{fn}"
+        oldDataPath = f"{oldDataDir}/{fn}"
+        dataPath = f"{dataDir}/{fn}"
+
+        df = pd.read_csv(dataPath, encoding=encoding)
+        youngDf = pd.read_csv(youngDataPath, encoding=encoding)
+        oldDf = pd.read_csv(oldDataPath, encoding=encoding)
+
+        for i in range(df.last_valid_index()+1):
+
+            curJobType = int(df["jobType"][i])
+            curYoungDf = youngDf[youngDf["jobType"] == curJobType]
+            curOldDf = oldDf[oldDf["jobType"] == curJobType]
+            if (len(curYoungDf.index) < 1 or len(curOldDf.index) < 1):
+                continue
+
+            fakeDataDir = f"{fdd}/{folderName}"
+            if not os.path.exists(fakeDataDir):
+                os.mkdir(fakeDataDir)
+            fakeDataPath = f"{fakeDataDir}/{df["jobType"][i]}.csv"
+
+            columnList = df.columns
+            # print(columnList)
+
+            newDf = pd.DataFrame(columns=columnList)
+
+            newList = []
+            newList.append(curYoungDf.iloc[0])
+            newList.append(curOldDf.iloc[0])
+            newList.append(df.iloc[i])
+
+            youngCount = int(df[columnList[4]][i])
+            oldCount = int(df[columnList[5]][i])
+            if youngCount < 1 or oldCount < 1:
+                continue
+
+            youngMaleCount = int(curYoungDf[columnList[2]])
+            youngMalePer = youngMaleCount / youngCount
+
+            oldMaleCount = int(curOldDf[columnList[2]])
+            oldMalePer = oldMaleCount / oldCount
+
+            for j in range(1, youngCount):
+                newOldDf = copy.deepcopy(curOldDf)
+                per = (j+1) / youngCount
+                # 종사자
+                newOldDf[columnList[1]] += j
+                # 다른 나이대
+                newOldDf[columnList[4]] += j
+                
+                #성별
+                newMale = 0
+                newFemale = 0
+                for l in range(j):
+                    if(newMale < youngMaleCount and newFemale < (youngCount - youngMaleCount)):
+                        realNum = random.random() % 1
+                        if(realNum <= oldMalePer):
+                            newOldDf[columnList[2]] += 1
+                            newMale += 1
+                        else:
+                            newOldDf[columnList[3]] += 1
+                            newFemale += 1
+
+                    elif(newMale < youngMaleCount):
+                        newOldDf[columnList[2]] += 1
+                        newMale += 1
+
+                    else:
+                        newOldDf[columnList[3]] += 1
+                        newFemale += 1
+
+                # 임금
+                newOldDf[columnList[6]].iloc[0] = newOldDf[columnList[6]].iloc[0] + float(int(curYoungDf[columnList[6]].iloc[0]) - int(newOldDf[columnList[6]].iloc[0])) * per
+                newOldDf[columnList[7]].iloc[0] = newOldDf[columnList[7]].iloc[0] + float(int(curYoungDf[columnList[7]].iloc[0]) - int(newOldDf[columnList[7]].iloc[0])) * per
+                newOldDf[columnList[8]].iloc[0] = newOldDf[columnList[8]].iloc[0] + float(int(curYoungDf[columnList[8]].iloc[0]) - int(newOldDf[columnList[8]].iloc[0])) * per
+                newList.append(newOldDf.iloc[0])
+                
+            for j in range(1, oldCount):
+                newYoungDf = copy.deepcopy(curYoungDf)
+                per = (j+1) / oldCount
+                # 종사자
+                newYoungDf[columnList[1]] += (j)
+                # 다른 나이대
+                newYoungDf[columnList[5]] += (j)
+                
+                #성별
+                newMale = 0
+                newFemale = 0
+                for l in range(j):
+                    if(newMale < oldMaleCount and newFemale < (oldCount - oldMaleCount)):
+                        realNum = random.random() % 1
+                        if(realNum <= youngMalePer):
+                            newYoungDf[columnList[2]] += 1
+                            newMale += 1
+                        else:
+                            newYoungDf[columnList[3]] += 1
+                            newFemale += 1
+
+                    elif(newMale < youngMaleCount):
+                        newYoungDf[columnList[2]] += 1
+                        newMale += 1
+
+                    else:
+                        newYoungDf[columnList[3]] += 1
+                        newFemale += 1
+
+                # 임금
+                newYoungDf[columnList[6]] += (int(curOldDf[columnList[6]]) - newYoungDf[columnList[6]]) * per
+                newYoungDf[columnList[7]] += (int(curOldDf[columnList[7]]) - newYoungDf[columnList[7]]) * per
+                newYoungDf[columnList[8]] += (int(curOldDf[columnList[8]]) - newYoungDf[columnList[8]]) * per
+                newList.append(newYoungDf.iloc[0])
+            
+            for d in range(len(newList)):
+                newDf.loc[d] = newList[d]
+                s1 = str(df["jobType"][i])
+            newDf.to_csv(f"{fakeDataPath}", index=False, encoding=encoding)
+        count+=1
+
+# buildFakeInput("./resources/dev02", "./resources/dev02/fake")
