@@ -832,7 +832,7 @@ def fakeSourceData_under():
     targetList = ["jobType", "nextWorkerCountRate", "nextAgeGte40Rate","nextMinSalaryRate","nextMaxSalaryRate","nextMeanSalaryRate"]
     refine_by_columns(f"./resources/dev02/40under/inputData", "./resources/dev02/40under/targetData", columnList, targetList)
 
-# 사용전에 "수동" 이라고 검색해서 수정할 것
+# 안쓰기로 함
 def fakeSourceData_on():
     codeList = ["0101","0107"]
     dev02Dataset("./resources/input", "./resources/Preprocess/onData.json", codeList)
@@ -845,6 +845,7 @@ def fakeSourceData_on():
     targetList = ["jobType", "nextWorkerCountRate", "nextAgeGte40Rate","nextMinSalaryRate","nextMaxSalaryRate","nextMeanSalaryRate"]
     refine_by_columns(f"./resources/dev02/40on/inputData", "./resources/dev02/40on/targetData", columnList, targetList)
 
+# 안쓰기로 함
 def buildFakeInput(srcDir, dstDir):
     dataKind = ["inputData"]
     
@@ -979,6 +980,7 @@ def buildFakeInput(srcDir, dstDir):
                 newDf.to_csv(f"{fakeDataPath}", index=False, encoding=encoding)
             count+=1
 
+# 안쓰기로 함
 def buildFakeTarget(srcDir, dstDir):
     folderName = "targetData"
     youngDataDir = f"{srcDir}/40under/{folderName}"
@@ -1152,7 +1154,40 @@ def CheckDataShape(srcDir, dstDir):
             print(f"{srcNames[i]} - 정상")
             
 
-    pass
-srcDir = "resources/dev02/testData/inputData"
-dstDir = "resources/dev02/testData/targetData"
-CheckDataShape(srcDir, dstDir)
+# 안쓰기로 함
+def absoluteValueTarget(iputDir, saveDir):
+    inputNames = os.listdir(iputDir)
+    columnList = ["jobType","workerCount","maleCount","femaleCount","ageLt40Count","ageGte40Count","minSalary","maxSalary","meanSalary"]
+
+    for i in range(len(inputNames)-1):
+        print(inputNames[i])
+        srcPath = f"{srcDir}/{inputNames[i]}"
+        dstPath = f"{srcDir}/{inputNames[i+1]}"
+
+        srcDf = pd.read_csv(srcPath, encoding=encoding)
+        print(srcDf.shape)
+        dstDf = pd.read_csv(dstPath, encoding=encoding)
+        print(dstDf.shape)
+
+        newDf1 = pd.DataFrame(columns=srcDf.columns)
+        newDf2 = pd.DataFrame(columns=srcDf.columns)
+        
+        for j in range(len(srcDf.index)):
+            jobType = srcDf["jobType"][j]
+            targetDf = dstDf[dstDf["jobType"] == jobType]
+            if(targetDf.size > 0):
+                if((int(targetDf.iloc[0][columnList[6]]) > 0 or int(targetDf.iloc[0][columnList[7]]) > 0 or int(targetDf.iloc[0][columnList[8]]) > 0)):
+                    newDf1.loc[j] = targetDf.iloc[0]
+                    newDf2.loc[j] = srcDf.iloc[j]
+
+        newDf1 = newDf1.astype({columnList[0]:"int32",columnList[1]:"int32",columnList[2]:"int32",columnList[3]:"int32",columnList[4]:"int32",columnList[5]:"int32",columnList[6]:"int32",columnList[7]:"int32"})
+        newDf2 = newDf2.astype({columnList[0]:"int32",columnList[1]:"int32",columnList[2]:"int32",columnList[3]:"int32",columnList[4]:"int32",columnList[5]:"int32",columnList[6]:"int32",columnList[7]:"int32"})
+        # print(newDf1.dtypes)
+        numString = str(i+1).zfill(2)
+        newDf1.to_csv(f"{saveDir}/targetData/{numString}.csv", index=False, encoding=encoding)
+        newDf2.to_csv(f"{saveDir}/inputData/{numString}.csv", index=False, encoding=encoding)
+
+
+srcDir = "resources/dev02/originData/inputData"
+dstDir = "resources/dev02/trainData"
+absoluteValueTarget(srcDir, dstDir)

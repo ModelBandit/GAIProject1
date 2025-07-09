@@ -1,5 +1,0 @@
-jobType,workerCount,maleCount,femaleCount,ageLt40Count,ageGte40Count,minSalary,maxSalary,meanSalary
-155.0,2.0,0.0,2.0,2.0,0.0,200.0,450.0,325.0
-155.0,1.0,1.0,0.0,0.0,1.0,0.0,0.0,0.0
-155.0,3.0,1.0,2.0,2.0,1.0,200.0,450.0,350.0
-155.0,2.0,1.0,1.0,1.0,1.0,200.0,450.0,325.0
