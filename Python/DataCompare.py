@@ -1112,3 +1112,31 @@ def buildFakeTarget(srcDir, dstDir):
         count+=1
 
 # buildFakeInput("./resources/dev02", "./resources/dev02/fake")
+
+def fittingDataShape(srcDir, dstDir):
+    srcNames = os.listdir(srcDir)
+    dstNames = os.listdir(dstDir)
+
+    for i in range(len(srcNames)):
+        srcPath = f"{srcDir}/{srcNames[i]}"
+        dstPath = f"{dstDir}/{dstNames[i]}"
+
+        srcDf = pd.read_csv(srcPath, encoding=encoding)
+        print(srcDf.shape)
+        dstDf = pd.read_csv(dstPath, encoding=encoding)
+        print(dstDf.shape)
+
+        srcJobType = srcDf["jobType"]
+        dstJobType = dstDf["jobType"]
+
+        for j in range(len(dstJobType.index)):
+            if(srcJobType.iloc[j] == dstJobType.iloc[j]) == False:
+                asd = dstJobType.drop([j])
+                print(asd)
+            
+        dstDf.to_csv(dstPath, index=False, encoding=encoding)
+
+    pass
+srcDir = "resources/dev02/trainData/inputData"
+dstDir = "resources/dev02/trainData/targetData"
+fittingDataShape(srcDir, dstDir)

@@ -1,126 +1,50 @@
 import pandas as pd
 import os
 
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.linear_model import LinearRegression
 
 global projectRoot
-global dataDir
-global directory
-global fileNames
+global inputDir
+global targetDir
 
-projectRoot = "D:/myproject/GAIProject1"
-dataDir = "resources/dev02"
-directory = None
-fileNames = None
+projectRoot = "D:/GAIP"
+trainInputDir = "resources/dev02/trainData/inputData"
+trainTargetDir = "resources/dev02/trainData/targetData"
+testInputDir = "resources/dev02/testData/inputData"
+testTargetDir = "resources/dev02/testData/targetData"
+encoding = "utf-8"
 
-def set_project_root(rootDir):
-    global projectRoot
-    projectRoot = rootDir
-    build_data_path()
-
-def build_data_path():
-    global dataDir
-    global directory
-    global fileNames
-    directory = f"{projectRoot}/{dataDir}"
+def loadAllData(directory, columnList):
     fileNames = os.listdir(directory)
 
-set_project_root("D:/myproject/GAIProject1")
+    df = pd.DataFrame(columns=columnList)
+    for fName in fileNames:
+        path = f"{directory}/{fName}"
+        newDf = pd.read_csv(path, encoding=encoding)[columnList]
 
+        df = pd.concat([df, newDf])
+    return df
 
-import matplotlib.pyplot as plt
-
-def visualize(keyindex):
-    dataDict = dict()
-    selectColumnList = ["workerCount","minSalary","maxSalary","meanSalary"]
-
-    for n in fileNames:
-        path = f"{directory}/{n}"
-        # print(path)
-        
-        jobtypes = pd.read_csv(path)["jobType"]
-        df = pd.read_csv(path)[selectColumnList]
-        
-        for j in range(len(jobtypes)):
-            t = str(jobtypes[j])
-            if(t in dataDict.keys()):
-                dataDict[t].append(df.iloc[j])
-                # print(len(dataDict[t]))
-            else:
-                dataDict[t] = [df.iloc[j]]
-                # print(dataDict[t])
-
-    # for i in dataDict.keys():
-        # print(f"{i} - {len(dataDict[i])}")
-        # print(dataDict[i])
-
-    keys = [*dataDict.keys()]
-    k = keys[keyindex]
-    d = dataDict[k]
-    plt.title(k)
-    countList = []
-    minList = []
-    maxList = []
-    meanList = []
-
-    for i in range(len(d)):
-        count = i
-        mis = d[i]["minSalary"]
-        mas = d[i]["maxSalary"]
-        mean = d[i]["meanSalary"]
-        countList.append(count)
-        minList.append(mis)
-        maxList.append(mas)
-        meanList.append(mean)
-    plt.scatter(countList,minList,c="red")
-    plt.scatter(countList,maxList,c="blue")
-    plt.scatter(countList,meanList,c="yellow")
-
-    plt.show()
-
-import numpy as np
 
 def ml():
-    dataDict = dict()
-    selectColumnList = ["workerCount","minSalary","maxSalary","meanSalary"]
+    inputColumnList = ["workerCount","ageLt40Count","ageGte40Count","minSalary","maxSalary","meanSalary"]
+    targetColumnList = ["nextWorkerCountRate","nextAgeGte40Rate","nextMinSalaryRate","nextMaxSalaryRate","nextMeanSalaryRate"]
 
-    for n in fileNames:
-        path = f"{directory}/{n}"
-        # print(path)
-        
-        jobtypes = pd.read_csv(path)["jobType"]
-        df = pd.read_csv(path)[selectColumnList]
-        
-        for j in range(len(jobtypes)):
-            t = str(jobtypes[j])
-            if(t in dataDict.keys()):
-                dataDict[t].append(df.iloc[j])
-                # print(len(dataDict[t]))
-            else:
-                dataDict[t] = [df.iloc[j]]
-                # print(dataDict[t])
+    inputDataDir = f"{projectRoot}/{trainInputDir}"
+    targetDataDir = f"{projectRoot}/{trainTargetDir}"
 
-    # for i in dataDict.keys():
-        # print(f"{i} - {len(dataDict[i])}")
-        # print(dataDict[i])
+    inputData = loadAllData(inputDataDir, inputColumnList).values
+    targetData = loadAllData(targetDataDir, targetColumnList).values
+    
+    print(inputData.shape)
+    print(targetData.shape)
+    pass
+    lr = LinearRegression()
+    lr.fit(inputData, targetData)
 
-    keys = [*dataDict.keys()]
-    k = keys[keyindex]
-    d = dataDict[k]
-    plt.title(k)
-    countList = []
-    minList = []
-    maxList = []
-    meanList = []
+    print(lr.score())
+    # print(inputData)
 
-    for i in range(len(d)):
-        count = i
-        mis = d[i]["minSalary"]
-        mas = d[i]["maxSalary"]
-        mean = d[i]["meanSalary"]
-        countList.append(count)
-        minList.append(mis)
-        maxList.append(mas)
-        meanList.append(mean)
 
-    data = np.array([])
+
+ml()
