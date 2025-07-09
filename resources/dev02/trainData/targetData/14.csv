@@ -151,5 +151,4 @@ jobType,nextWorkerCountRate,nextAgeGte40Rate,nextMinSalaryRate,nextMaxSalaryRate
 530,50.00,33.33,100.00,30.00,46.67
 111,200.00,66.67,0,0,0
 841,33.33,50.00,10.00,4.00,6.00
-111,0.00,0.00,0,0,0
 814,500.00,33.33,0,0,0

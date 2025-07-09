@@ -1113,11 +1113,12 @@ def buildFakeTarget(srcDir, dstDir):
 
 # buildFakeInput("./resources/dev02", "./resources/dev02/fake")
 
-def fittingDataShape(srcDir, dstDir):
+def CheckDataShape(srcDir, dstDir):
     srcNames = os.listdir(srcDir)
     dstNames = os.listdir(dstDir)
 
     for i in range(len(srcNames)):
+        print(srcNames[i])
         srcPath = f"{srcDir}/{srcNames[i]}"
         dstPath = f"{dstDir}/{dstNames[i]}"
 
@@ -1129,14 +1130,29 @@ def fittingDataShape(srcDir, dstDir):
         srcJobType = srcDf["jobType"]
         dstJobType = dstDf["jobType"]
 
-        for j in range(len(dstJobType.index)):
-            if(srcJobType.iloc[j] == dstJobType.iloc[j]) == False:
-                asd = dstJobType.drop([j])
-                print(asd)
+        srcLen = len(srcJobType.index)
+        dstLen = len(dstJobType.index)
+        if(srcLen > dstLen):
+            for j in range(srcLen):
+                try:
+                    if(srcJobType.iloc[j] == dstJobType.iloc[j]) == False:
+                        print(srcJobType.iloc[j])
+                except:
+                    print(srcJobType.iloc[j])
+                    pass
+        elif(srcLen < dstLen):
+            for j in range(dstLen):
+                try:
+                    if(srcJobType.iloc[j] == dstJobType.iloc[j]) == False:
+                        print(dstJobType.iloc[j])
+                except:
+                    print(dstJobType.iloc[j])
+                    pass
+        else:
+            print(f"{srcNames[i]} - 정상")
             
-        dstDf.to_csv(dstPath, index=False, encoding=encoding)
 
     pass
-srcDir = "resources/dev02/trainData/inputData"
-dstDir = "resources/dev02/trainData/targetData"
-fittingDataShape(srcDir, dstDir)
+srcDir = "resources/dev02/testData/inputData"
+dstDir = "resources/dev02/testData/targetData"
+CheckDataShape(srcDir, dstDir)
