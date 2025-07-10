@@ -1,7 +1,6 @@
 import oracledb as cx_Oracle
 import os
 import pandas as pd
-import numpy as np
 
 projectRoot = "." # D:/GAIP
 trainInputDir = "resources/dev02/trainData/inputData"
@@ -31,12 +30,12 @@ class ConnectDB:
         self.lib_Dir = "C:/instantclient-basic-windows.x64-19.27.0.0.0dbru/instantclient_19_27" # instant clinet 받아서 풀어놓고 처리해야 함.
         cx_Oracle.init_oracle_client(lib_dir=self.lib_Dir)
 
-        self.dsn = cx_Oracle.makedsn("localhost", 1521, sid="xe")
-        self.user = "scott"
-        self.pwd = "tiger"
+        dsn = cx_Oracle.makedsn("localhost", 1521, sid="xe")
+        user = "scott"
+        pwd = "tiger"
 
         try:
-            self.connection = cx_Oracle.connect(user=self.user, password=self.pwd, dsn=self.dsn)
+            self.connection = cx_Oracle.connect(user=user, password=pwd, dsn=dsn)
             print("Connected")
         except cx_Oracle.DatabaseError as e:
             print("Fail: ", e)
