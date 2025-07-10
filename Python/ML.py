@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import os
 
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Ridge
 from sklearn.linear_model import Lasso
@@ -20,7 +23,8 @@ trainTargetDir = "resources/dev02/trainData/targetData"
 testInputDir = "resources/dev02/testData/inputData"
 testTargetDir = "resources/dev02/testData/targetData"
 encoding = "utf-8"
-columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count"]
+# columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count"]
+columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count", "maxSalary","meanSalary"]
 targetColumnList = ["workerCount"] # "companyCount",
 
 
@@ -37,29 +41,38 @@ def loadAllData(directory, columnList):
 
 def testML():
     # 나눠진 경우
-    inputDataDir = f"{projectRoot}/{trainInputDir}"
-    targetDataDir = f"{projectRoot}/{trainTargetDir}"
+    # inputDataDir = f"{projectRoot}/{trainInputDir}"
+    # targetDataDir = f"{projectRoot}/{trainTargetDir}"
 
-    trainInput = loadAllData(inputDataDir, columnList)#.values
-    trainTarget = loadAllData(targetDataDir, targetColumnList)#.values
+    # trainInput = loadAllData(inputDataDir, columnList)#.values
+    # trainTarget = loadAllData(targetDataDir, targetColumnList)#.values
     
-    inputDataDir = f"{projectRoot}/{testInputDir}"
-    targetDataDir = f"{projectRoot}/{testTargetDir}"
+    # inputDataDir = f"{projectRoot}/{testInputDir}"
+    # targetDataDir = f"{projectRoot}/{testTargetDir}"
 
-    testInput = loadAllData(inputDataDir, columnList)#.values
-    testTarget = loadAllData(targetDataDir, targetColumnList)#.values
+    # testInput = loadAllData(inputDataDir, columnList)#.values
+    # testTarget = loadAllData(targetDataDir, targetColumnList)#.values
 
-    # inputDataDir = r"D:\GAIP\resources\dev02\dataAugmentation\inputData"
-    # targetDataDir = r"D:\GAIP\resources\dev02\dataAugmentation\targetData"
-    # inputDf = loadAllData(inputDataDir, columnList)
-    # targetDf = loadAllData(targetDataDir, targetColumnList)
+    inputDataDir = r"D:\GAIP\resources\dev02\haveSalary\inputData"
+    targetDataDir = r"D:\GAIP\resources\dev02\haveSalary\targetData"
+    inputDf = loadAllData(inputDataDir, columnList)
+    targetDf = loadAllData(targetDataDir, targetColumnList)
 
     # 섞으려고 추가함
-    inputDf = pd.concat([trainInput, testInput])
-    targetDf = pd.concat([trainTarget, testTarget])
+    # inputDf = pd.concat([trainInput, testInput])
+    # targetDf = pd.concat([trainTarget, testTarget])
+
+
+    # corr_matrix = pd.DataFrame(inputDf, columns=inputDf.columns).corr()
+    # plt.figure(figsize=(200,200))
+    # sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
+    # plt.title("Feature Correlation Matrix")
+    # plt.show()
+
+
     trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
-    trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int})
-    testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int})
+    trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int})
+    testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int})
     trainTarget = trainTarget.astype({targetColumnList[0]:int})
     testTarget = testTarget.astype({targetColumnList[0]:int})
     trainTarget = trainTarget[targetColumnList[0]].values.ravel()
@@ -69,7 +82,7 @@ def testML():
     # RidgeML(trainInput, trainTarget, testInput, testTarget)ExtraRandomForestML
     # LassoML(trainInput, trainTarget, testInput, testTarget)
     RandomForestML(trainInput, trainTarget, testInput, testTarget)
-    # ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget)
+    ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget)
     # GradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
     # HistGradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
     # permutation_importance_ML(trainInput, trainTarget, testInput, testTarget)
@@ -158,41 +171,43 @@ def LassoML(trainInput, trainTarget, testInput, testTarget):
         # test
         print(lasso.score(testInput, testTarget))
     
-
+est = 300
+mDepth = 15
+msl = 1
 def RandomForestML(trainInput, trainTarget, testInput, testTarget):
 
     print("RandomForestML")
 
     rfr = RandomForestRegressor(
-            # n_estimators=200,               # 생성할 트리 개수
+            n_estimators=est,               # 생성할 트리 개수
             # criterion='squared_error',      # 분할 기준 (손실 함수: 평균제곱오차 MSE)
-            # max_depth=None,                 # 트리 최대 깊이 제한 (None이면 끝까지 분할)
+            max_depth=mDepth,                 # 트리 최대 깊이 제한 (None이면 끝까지 분할)
             # min_samples_split=2,            # 내부 노드 분할에 필요한 최소 샘플 수
-            # min_samples_leaf=1,             # 리프 노드에 있어야 할 최소 샘플 수
+            min_samples_leaf=msl,             # 리프 노드에 있어야 할 최소 샘플 수
             # min_weight_fraction_leaf=0.0,   # 리프 노드에 있어야 할 최소 가중치 비율 (샘플 가중치 쓸 때 사용)
-            # max_features=0.8,               # 분할에 사용할 피처 비율 (1.0이면 전체 피처 사용)
+            max_features=0.8,               # 분할에 사용할 피처 비율 (1.0이면 전체 피처 사용)
             # max_leaf_nodes=None,            # 리프 노드 최대 개수 제한 (None이면 제한 없음)
             # min_impurity_decrease=0.0,      # 이 값보다 손실 감소가 작으면 분할하지 않음 (분할 최소 기준)
-            # bootstrap=True,                 # 부트스트랩 샘플링 사용 여부 (True면 중복 허용)
+            bootstrap=True,                 # 부트스트랩 샘플링 사용 여부 (True면 중복 허용)
             # oob_score=False,                # Out-of-Bag 샘플로 일반화 성능 평가할지 여부
-            # n_jobs=None,                    # 사용할 CPU 코어 수 (None이면 1, -1이면 전체)
-            # random_state=42,                # 랜덤 시드 (재현 가능성 위해 고정)
+            n_jobs=-1,                    # 사용할 CPU 코어 수 (None이면 1, -1이면 전체)
+            random_state=42,                # 랜덤 시드 (재현 가능성 위해 고정)
             # verbose=0,                      # 학습 과정 출력 수준 (0이면 출력 없음)
             # warm_start=False,               # 기존 트리에 이어서 추가 학습할지 여부
             # ccp_alpha=0.0,                  # Minimal cost-complexity pruning 강도 (0이면 가지치기 안함)
             # max_samples=None,                # 부트스트랩 샘플 수 제한 (None이면 전체 샘플 사용)
         )
-    params = {
-        'n_estimators': range(50,300,5),
-        'max_depth': range(5,20),
-        'min_samples_split': range(2,10),
-        'min_samples_leaf': [1, 2],
-        'max_features': np.arange(0,1.0,0.05)
-    }
-    gs = GridSearchCV(rfr, params, n_jobs=-1)
-    gs.fit(trainInput, trainTarget)
-    print(gs.best_params_)
-    print(gs.best_score_)
+    # params = {
+    #     'n_estimators': range(50,300,5),
+    #     'max_depth': range(5,20),
+    #     'min_samples_split': range(2,10),
+    #     'min_samples_leaf': [1, 2],
+    #     'max_features': np.arange(0,1.0,0.05)
+    # }
+    # gs = GridSearchCV(rfr, params, n_jobs=-1)
+    # gs.fit(trainInput, trainTarget)
+    # print(gs.best_params_)
+    # print(gs.best_score_)
 
     rfr.fit(trainInput, trainTarget)
     
@@ -204,6 +219,13 @@ def RandomForestML(trainInput, trainTarget, testInput, testTarget):
     #                                 n_repeats=10, n_jobs=-1)
     # print(resultTarget.importances_mean)
     # train
+
+
+    importances = rfr.feature_importances_
+
+    # for name, score in zip(trainInput.columns, importances):
+    #     print(f"{name}: {score:.4f}")
+
     print(rfr.score(trainInput, trainTarget))
 
     # test
@@ -219,22 +241,23 @@ def ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget):
     print("ExtraRandomForestML")
 
     rfr = ExtraTreesRegressor(
-                                n_estimators=200, 
-                                criterion='squared_error',
-                                max_depth=None, 
-                                min_samples_split=2, 
-                                min_samples_leaf=1, 
-                                min_weight_fraction_leaf=0.0, 
+                                n_estimators=est, 
+                                # criterion='squared_error',
+                                max_depth=mDepth, 
+                                # min_samples_split=2, 
+                                min_samples_leaf=msl, 
+                                # min_weight_fraction_leaf=0.0, 
                                 max_features=0.8, 
-                                max_leaf_nodes=None, 
-                                min_impurity_decrease=0.0, 
-                                bootstrap=True, oob_score=False, 
-                                n_jobs=None, random_state=42, 
-                                verbose=0, 
-                                warm_start=False, 
-                                ccp_alpha=0.0, 
-                                max_samples=None, 
-                                monotonic_cst=None,
+                                # max_leaf_nodes=None, 
+                                # min_impurity_decrease=0.0, 
+                                bootstrap=True,
+                                # oob_score=False, 
+                                n_jobs=-1, random_state=42, 
+                                # verbose=0, 
+                                # warm_start=False, 
+                                # ccp_alpha=0.0, 
+                                # max_samples=None, 
+                                # monotonic_cst=None,
             )
     rfr.fit(trainInput, trainTarget)
 
@@ -286,13 +309,13 @@ def GradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget):
     )
     gbr.fit(trainInput, trainTarget)
     
-    # resultInput = permutation_importance(gbr, trainInput, trainTarget, 
-    #                                 n_repeats=10, n_jobs=-1)
-    # print(resultInput.importances_mean)
+    resultInput = permutation_importance(gbr, trainInput, trainTarget, 
+                                    n_repeats=10, n_jobs=-1)
+    print(resultInput.importances_mean)
 
-    # resultTarget = permutation_importance(gbr, testInput, testTarget, 
-    #                                 n_repeats=10, n_jobs=-1)
-    # print(resultTarget.importances_mean)
+    resultTarget = permutation_importance(gbr, testInput, testTarget, 
+                                    n_repeats=10, n_jobs=-1)
+    print(resultTarget.importances_mean)
 
     # train
     print(gbr.score(trainInput, trainTarget))

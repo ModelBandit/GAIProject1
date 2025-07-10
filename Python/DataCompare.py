@@ -1188,7 +1188,7 @@ def absoluteValueTarget(iputDir, saveDir):
 
 
 
-def merge_jobCode_industrialCode(srcDir):
+def merge_jobCode_industrialCode(srcDir, dstDir):
     inputNames = os.listdir(srcDir)
     codeColumn = "jobType"
 
@@ -1200,12 +1200,12 @@ def merge_jobCode_industrialCode(srcDir):
 
     # 1 10 1차 11 20 2차 21 7차 차이
 
-    typeList = ["code","workerCount","maleCount","femaleCount","ageLt40Count","ageGte40Count"]
+    typeList = ["code","workerCount","maleCount","femaleCount","ageLt40Count","ageGte40Count", "minSalary","maxSalary","meanSalary", "jobCount"]
     for i in range(len(inputNames)):
         srcPath = f"{srcDir}/{inputNames[i]}"
 
         srcDf = pd.read_csv(srcPath, encoding=encoding)
-        
+        srcDf["jobCount"] = 1
         
         if i < 10:
             jobCodeDf = jobCode5
@@ -1217,6 +1217,7 @@ def merge_jobCode_industrialCode(srcDir):
 
         inderstryDf = pd.DataFrame(columns=typeList)
         count = 0
+
         for j in range(len(srcDf.index)):
             if j == 5:
                 pass
@@ -1250,10 +1251,13 @@ def merge_jobCode_industrialCode(srcDir):
                 if(len(cl) < 1):
                     inderstryData = inderstryDf[inderstryDf["code"] == "기타"]
                     if(len(inderstryData.index) > 0):
-                        addList = ["workerCount","maleCount","femaleCount","ageLt40Count","ageGte40Count"]
+                        addList = ["workerCount","maleCount","femaleCount","ageLt40Count","ageGte40Count", "minSalary","maxSalary","meanSalary", "jobCount"]
                         inderstryData = inderstryDf[inderstryDf["code"] == "기타"]
                         for column in addList:
+                            if int(srcDf[column][j]) < 1:
+                                continue
                             inderstryData[column] += srcDf[column][j]
+                            
                     else:
                         inderstryDf.loc[count] = srcDf.iloc[j]
                         inderstryDf["code"][count] = "기타"
@@ -1271,8 +1275,10 @@ def merge_jobCode_industrialCode(srcDir):
             inderstryData = inderstryDf[inderstryDf["code"] == srcType]
             if(len(inderstryData.index) > 0):
                 # print(inderstryData)
-                addList = ["workerCount","maleCount","femaleCount","ageLt40Count","ageGte40Count"]
+                addList = ["workerCount","maleCount","femaleCount","ageLt40Count","ageGte40Count", "minSalary","maxSalary","meanSalary", "jobCount"]
                 for column in addList:
+                    if int(srcDf[column][j]) < 1:
+                        continue
                     inderstryData[column] += srcDf[column][j]
                     # try:
                     # except:
@@ -1283,8 +1289,14 @@ def merge_jobCode_industrialCode(srcDir):
                 inderstryDf.loc[count] = srcDf.iloc[j]
                 inderstryDf["code"][count] = srcType
             count += 1
-        inderstryDf = inderstryDf.astype({typeList[1]:"int32",typeList[2]:"int32",typeList[3]:"int32",typeList[4]:"int32",typeList[5]:"int32"})
-        inderstryDf.to_csv(f"./{str(i+1).zfill(2)}.csv", index=False, encoding=encoding)
+
+            salaryList = ["minSalary","maxSalary","meanSalary"]
+            for salary in salaryList:
+                inderstryData[salary] = inderstryData[salary] / srcDf["jobCount"][j]
+
+
+        inderstryDf = inderstryDf.astype({typeList[1]:"int32",typeList[2]:"int32",typeList[3]:"int32",typeList[4]:"int32",typeList[5]:"int32",typeList[6]:"int32",typeList[7]:"int32",typeList[8]:"float64",typeList[9]:"int32"})
+        inderstryDf.to_csv(f"{dstDir}/{str(i+1).zfill(2)}.csv", index=False, encoding=encoding)
 
 # 데이터 부족하면 안합치는 버전으로
 def jobCode_industrialCode(srcDir, dstDir):
@@ -1370,11 +1382,11 @@ def jobCode_industrialCode(srcDir, dstDir):
 
 
 # srcDir = "resources/dev02/originData/inputData"
-# dstDir = r"D:\GAIP\resources\dev02\dataAugmentation\inputData"
-# absoluteValueTarget(srcDir, dstDir)
-# merge_jobCode_industrialCode(srcDir)
+# dstDir = r"D:\GAIP\resources\dev02\haveSalary\inputData"
+# # absoluteValueTarget(srcDir, dstDir)
+# merge_jobCode_industrialCode(srcDir, dstDir)
 
-# jobCode_industrialCode(srcDir, dstDir) # 아직 작업 안됨
+# jobCode_industrialCode(srcDir, dstDir)
 
 def Indurstrial_target_maker(srcDir, dstDir, columnList):
     companyTarget = "./resources/company_Industrial.csv"
@@ -1388,6 +1400,7 @@ def Indurstrial_target_maker(srcDir, dstDir, columnList):
 
     for i in range(len(fileNames)):
         path = f"{srcDir}/{fileNames[i]}"
+        print(i)
         targetList = [dataColumnList[0], dataColumnList[i+1]]
         originCodeList = copy.deepcopy([*companyDf["Industrial"].values])
 
@@ -1443,10 +1456,10 @@ def Indurstrial_target_maker(srcDir, dstDir, columnList):
         targetDf.to_csv(f"{dstDir}/{str(i+8).zfill(2)}.csv", index=False, encoding=encoding)
 
     pass
-srcDir = "resources/dev02/dataAugmentation/inputData"
-dstDir = "resources/dev02/dataAugmentation/targetData"
-columnList = ["code","companyCount","workerCount"]
-Indurstrial_target_maker(srcDir, dstDir, columnList)
+# srcDir = "resources/dev02/haveSalary/inputData"
+# dstDir = "resources/dev02/haveSalary/targetData"
+# columnList = ["code","companyCount","workerCount"]
+# Indurstrial_target_maker(srcDir, dstDir, columnList)
 
 # def resave(path):
 #     df = pd.read_csv(path, encoding=encoding)
@@ -1459,3 +1472,100 @@ Indurstrial_target_maker(srcDir, dstDir, columnList)
 # companyTarget = r"D:\GAIP\resources\company_Industrial.csv"
 # workerTarget = r"D:\GAIP\resources\Worker_Industrial.csv"
 
+def dataSliceAugmentation(inputDir, targetDir):
+    inputNames = os.listdir(inputDir)
+
+    for i in range(len(inputNames)-1):
+        iPath = f"{inputDir}/{inputNames[i]}"
+        nPath = f"{inputDir}/{inputNames[i+1]}"
+
+        df = pd.read_csv(iPath, encoding=encoding)
+        nextDf = pd.read_csv(nPath, encoding=encoding)
+
+        columnList = [*df.columns]
+
+        etcSkipList = []
+        newDf = pd.DataFrame(columns=df.columns)
+        count = 0
+        for j in range(len(df.index)):
+            index = df.iloc[j]
+
+            columnString = str(index[columnList[0]])
+            ndf = nextDf[nextDf[columnList[0]] == columnString]
+
+            if len(ndf.index) < 1:
+                etcSkipList.append(columnString)
+                continue
+
+            dataList = [columnString]
+            for l in range(1, len(columnList)):
+                a = index[columnList[l]]
+                b = ndf[columnList[l]][ndf.first_valid_index()]
+
+                print(a)
+                print(b)
+
+                dataList.append((a + b) // 2)
+
+            newDf.loc[count] = dataList
+            count += 1
+        
+        for etc in  etcSkipList:
+            ndf = df[df[columnList[0]] == etc]
+            for l in range(1, len(columnList)):
+                ldata = newDf[newDf[columnList[0]] == "기타"][columnList[l]]
+                ldata += ndf[columnList[l]]
+            for l in range(1, len(columnList)-1):
+                newDf[newDf[columnList[0]] == "기타"][columnList[l]] = newDf[newDf[columnList[0]] == "기타"][columnList[l]] // len(etcSkipList)
+        
+        savePath = f"{inputDir}/half_{inputNames[i]}"    
+        newDf.to_csv(savePath, index=False, encoding=encoding)
+
+        
+    targetNames = os.listdir(targetDir)
+    for i in range(len(inputNames)-1):
+        iPath = f"{targetDir}/{targetNames[i]}"
+        nPath = f"{targetDir}/{targetNames[i+1]}"
+
+        df = pd.read_csv(iPath, encoding=encoding)
+        nextDf = pd.read_csv(nPath, encoding=encoding)
+
+        columnList = [*df.columns]
+
+        etcSkipList = []
+        newDf = pd.DataFrame(columns=df.columns)
+        count = 0
+        for j in range(len(df.index)):
+            index = df.iloc[j]
+
+            columnString = str(index[columnList[0]])
+            ndf = nextDf[nextDf[columnList[0]] == columnString]
+
+            if len(ndf.index) < 1:
+                etcSkipList.append(columnString)
+                continue
+
+            dataList = [columnString]
+            for l in range(1, len(columnList)):
+                dataList.append((index[columnList[l]] + ndf[columnList[l]][ndf.first_valid_index()]) // 2)
+
+            newDf.loc[count] = dataList
+            count += 1
+        
+        for etc in  etcSkipList:
+            ndf = df[df[columnList[0]] == etc]
+            for l in range(1, len(columnList)):
+                ldata = newDf[newDf[columnList[0]] == "기타"][columnList[l]]
+                ldata += ndf[columnList[l]]
+            for l in range(1, len(columnList)-1):
+                newDf[newDf[columnList[0]] == "기타"][columnList[l]] = newDf[newDf[columnList[0]] == "기타"][columnList[l]] // len(etcSkipList)
+        
+        savePath = f"{targetDir}/half_{targetNames[i]}"    
+        newDf.to_csv(savePath, index=False, encoding=encoding)
+
+    
+    pass
+
+# inputDir = "resources/dev02/haveSalary/inputData"
+# targetDir = "resources/dev02/haveSalary/targetData"
+# dataSliceAugmentation(inputDir, targetDir)
