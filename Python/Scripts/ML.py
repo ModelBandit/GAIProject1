@@ -17,15 +17,15 @@ from sklearn.pipeline import make_pipeline
 
 
 
-projectRoot = "D:/GAIP"
+projectRoot = "./"
 trainInputDir = "resources/dev02/trainData/inputData"
 trainTargetDir = "resources/dev02/trainData/targetData"
 testInputDir = "resources/dev02/testData/inputData"
 testTargetDir = "resources/dev02/testData/targetData"
 encoding = "utf-8"
 # columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count"]
-columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count", "maxSalary","meanSalary"]
-targetColumnList = ["workerCount"] # "companyCount",
+columnList = ["workerCount", "maleCount","femaleCount","ageLt40Count","ageGte40Count", "minSalary", "maxSalary", "meanSalary"]
+targetColumnList = ["companyCount", "workerCount"] # "companyCount",
 
 
 def loadAllData(directory, columnList):
@@ -53,8 +53,8 @@ def testML():
     # testInput = loadAllData(inputDataDir, columnList)#.values
     # testTarget = loadAllData(targetDataDir, targetColumnList)#.values
 
-    inputDataDir = r"D:\GAIP\resources\dev02\haveSalary\inputData"
-    targetDataDir = r"D:\GAIP\resources\dev02\haveSalary\targetData"
+    inputDataDir = r".\resources\dev02\haveSalary\inputData"
+    targetDataDir = r".\resources\dev02\haveSalary\targetData"
     inputDf = loadAllData(inputDataDir, columnList)
     targetDf = loadAllData(targetDataDir, targetColumnList)
 
@@ -71,26 +71,56 @@ def testML():
 
 
     trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
-    trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int})
-    testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int})
-    trainTarget = trainTarget.astype({targetColumnList[0]:int})
-    testTarget = testTarget.astype({targetColumnList[0]:int})
+    trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int, columnList[6]:int, columnList[7]:int})
+    testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int  , columnList[5]:int, columnList[6]:int, columnList[7]:int})
+    trainTarget = trainTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
+    testTarget = testTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
+
+    # df_corr = trainInput.copy()
+    # df_corr['target'] = trainTarget[targetColumnList[0]]
+
+    # target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
+    # print(target_corr)
+
     trainTarget = trainTarget[targetColumnList[0]].values.ravel()
     testTarget = testTarget[targetColumnList[0]].values.ravel()
-    # LinearML(trainInput, trainTarget, testInput, testTarget)
+
+
+
+    # lML = LinearML(trainInput, trainTarget, testInput, testTarget)
+
+    
     # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget)
     # RidgeML(trainInput, trainTarget, testInput, testTarget)ExtraRandomForestML
     # LassoML(trainInput, trainTarget, testInput, testTarget)
-    RandomForestML(trainInput, trainTarget, testInput, testTarget)
-    ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget)
-    # GradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
-    # HistGradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
+    
+    dtML = DecisionTreeML(trainInput, trainTarget, testInput, testTarget)
+    rfML = RandomForestML(trainInput, trainTarget, testInput, testTarget)
+    erfML = ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget)
+    gbr = GradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
+    hgbr = HistGradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
     # permutation_importance_ML(trainInput, trainTarget, testInput, testTarget)
 
-    # XGBRegressor_ML(trainInput, trainTarget, testInput, testTarget)
+    xg = XGBRegressor_ML(trainInput, trainTarget, testInput, testTarget)
     # XGBRFRegressor_ML(trainInput, trainTarget, testInput, testTarget)
 
-    # LGBMRegressor_ML(trainInput, trainTarget, testInput, testTarget)
+    lg = LGBMRegressor_ML(trainInput, trainTarget, testInput, testTarget)
+
+    
+    categories =["DecisionTreeML","RandomForestML","ExtraRandomForestML","GradientBoostingRegressorML","HistGradientBoostingRegressorML","XGBRegressor_ML","LGBMRegressor_ML"]
+
+    values1 = [dtML[0], rfML[0], erfML[0], gbr[0], hgbr[0], xg[0], lg[0]]
+    values2 = [dtML[1], rfML[1], erfML[1], gbr[1], hgbr[1], xg[1], lg[1]]
+
+    x = np.arange(len(categories))  # x축 위치 [0, 1, 2, ..., 19]
+    width = 0.05  # 바 폭
+    
+    plt.bar(x - width, values1, 0.1, label='Train')
+    plt.bar(x + width, values2, 0.1, label='Test')
+    plt.xticks(x, categories, rotation=45)  # x축 이름 및 회전
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
     
 
 
@@ -109,17 +139,42 @@ def LinearML(trainInput, trainTarget, testInput, testTarget):
     )
     lr.fit(trainInput, trainTarget)
 
-    # train
-    print(lr.score(trainInput, trainTarget))
+    scoreList = [lr.score(trainInput, trainTarget), lr.score(testInput, testTarget)]
+    
+    print(scoreList[0])
+    print(scoreList[1])
 
-    # test
-    print(lr.score(testInput, testTarget))
+    return scoreList
     
 
     # df = pd.DataFrame(lr.predict(testInput), columns=columnList)
     # df = df.astype({columnList[0]:"int32",columnList[1]:"int32",columnList[2]:"int32",columnList[3]:"int32",columnList[4]:"int32",columnList[5]:"int32",columnList[6]:"int32",columnList[7]:"float64"})
     # print(df)
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import plot_tree
+def DecisionTreeML(trainInput, trainTarget, testInput, testTarget):
+
+    # print(trainInput.shape)
+    # print(trainTarget.shape)
+    print("DecisionTreeML")
+    lr = DecisionTreeRegressor()
+    lr.fit(trainInput, trainTarget)
+    scoreList = [lr.score(trainInput, trainTarget), lr.score(testInput, testTarget)]
     
+    print(scoreList[0])
+    print(scoreList[1])
+
+
+    # plt.figure(figsize=(10,7))
+    # plot_tree(lr, max_depth=1, filled=True)
+    # plt.show()
+    return scoreList
+    
+
+    # df = pd.DataFrame(lr.predict(testInput), columns=columnList)
+    # df = df.astype({columnList[0]:"int32",columnList[1]:"int32",columnList[2]:"int32",columnList[3]:"int32",columnList[4]:"int32",columnList[5]:"int32",columnList[6]:"int32",columnList[7]:"float64"})
+    # print(df)
+
 def PolynomialLinearML(trainInput, trainTarget, testInput, testTarget):
 
     # print(trainInput.shape)
@@ -226,10 +281,12 @@ def RandomForestML(trainInput, trainTarget, testInput, testTarget):
     # for name, score in zip(trainInput.columns, importances):
     #     print(f"{name}: {score:.4f}")
 
-    print(rfr.score(trainInput, trainTarget))
+    scoreList = [rfr.score(trainInput, trainTarget), rfr.score(testInput, testTarget)]
+    
+    print(scoreList[0])
+    print(scoreList[1])
 
-    # test
-    print(rfr.score(testInput, testTarget))
+    return scoreList
 
     # df = pd.DataFrame(rfr.predict(testInput), columns=columnList)
     # df = df.astype({columnList[0]:"int32",columnList[1]:"int32",columnList[2]:"int32",columnList[3]:"int32",columnList[4]:"int32",columnList[5]:"int32",columnList[6]:"int32",columnList[7]:"float64"})
@@ -268,11 +325,13 @@ def ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget):
     # resultTarget = permutation_importance(rfr, testInput, testTarget, 
     #                                 n_repeats=10, n_jobs=-1)
     # print(resultTarget.importances_mean)
-    # train
-    print(rfr.score(trainInput, trainTarget))
+    
+    scoreList = [rfr.score(trainInput, trainTarget), rfr.score(testInput, testTarget)]
+    
+    print(scoreList[0])
+    print(scoreList[1])
 
-    # test
-    print(rfr.score(testInput, testTarget))
+    return scoreList
 
 
     # df = pd.DataFrame(rfr.predict(testInput), columns=columnList)
@@ -309,19 +368,20 @@ def GradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget):
     )
     gbr.fit(trainInput, trainTarget)
     
-    resultInput = permutation_importance(gbr, trainInput, trainTarget, 
-                                    n_repeats=10, n_jobs=-1)
-    print(resultInput.importances_mean)
+    # resultInput = permutation_importance(gbr, trainInput, trainTarget, 
+    #                                 n_repeats=10, n_jobs=-1)
+    # print(resultInput.importances_mean)
 
-    resultTarget = permutation_importance(gbr, testInput, testTarget, 
-                                    n_repeats=10, n_jobs=-1)
-    print(resultTarget.importances_mean)
+    # resultTarget = permutation_importance(gbr, testInput, testTarget, 
+    #                                 n_repeats=10, n_jobs=-1)
+    # print(resultTarget.importances_mean)
 
-    # train
-    print(gbr.score(trainInput, trainTarget))
+    scoreList = [gbr.score(trainInput, trainTarget), gbr.score(testInput, testTarget)]
+    
+    print(scoreList[0])
+    print(scoreList[1])
 
-    # test
-    print(gbr.score(testInput, testTarget))
+    return scoreList
 
     # df = pd.DataFrame(gbr.predict(testInput), columns=columnList)
     # df = df.astype({columnList[0]:"int32",columnList[1]:"int32",columnList[2]:"int32",columnList[3]:"int32",columnList[4]:"int32",columnList[5]:"int32",columnList[6]:"int32",columnList[7]:"float64"})
@@ -358,11 +418,12 @@ def HistGradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarg
     gbr.fit(trainInput, trainTarget)
     
 
-    # train
-    print(gbr.score(trainInput, trainTarget))
+    scoreList = [gbr.score(trainInput, trainTarget), gbr.score(testInput, testTarget)]
+    
+    print(scoreList[0])
+    print(scoreList[1])
 
-    # test
-    print(gbr.score(testInput, testTarget))
+    return scoreList
 
     # df = pd.DataFrame(gbr.predict(testInput), columns=columnList)
     # df = df.astype({columnList[0]:"int32",columnList[1]:"int32",columnList[2]:"int32",columnList[3]:"int32",columnList[4]:"int32",columnList[5]:"int32",columnList[6]:"int32",columnList[7]:"float64"})
@@ -385,10 +446,12 @@ def permutation_importance_ML(trainInput, trainTarget, testInput, testTarget):
     print(resultTarget.importances_mean)
     
 
-    # train
-    print(hgbr.score(trainInput, trainTarget))
-    # test
-    print(hgbr.score(testInput, testTarget))
+    scoreList = [hgbr.score(trainInput, trainTarget), hgbr.score(testInput, testTarget)]
+    
+    print(scoreList[0])
+    print(scoreList[1])
+
+    return scoreList
 
 from xgboost import XGBRegressor
 def XGBRegressor_ML(trainInput, trainTarget, testInput, testTarget):
@@ -398,19 +461,21 @@ def XGBRegressor_ML(trainInput, trainTarget, testInput, testTarget):
     xgb = XGBRegressor(learning_rate=0.1, max_depth=6, n_estimators=200, early_stopping_rounds=10, max_feature=0.8)
     xgb.fit(trainInput, trainTarget, eval_set=[(testInput, testTarget)])
     
-    # resultInput = permutation_importance(xgb, trainInput, trainTarget, 
-    #                                 n_repeats=10, n_jobs=-1)
-    # print(resultInput.importances_mean)
+    resultInput = permutation_importance(xgb, trainInput, trainTarget, 
+                                    n_repeats=10, n_jobs=-1)
+    print(resultInput.importances_mean)
 
-    # resultTarget = permutation_importance(xgb, testInput, testTarget, 
-    #                                 n_repeats=10, n_jobs=-1)
-    # print(resultTarget.importances_mean)
+    resultTarget = permutation_importance(xgb, testInput, testTarget, 
+                                    n_repeats=10, n_jobs=-1)
+    print(resultTarget.importances_mean)
     
 
-    # train
-    print(xgb.score(trainInput, trainTarget))
-    # test
-    print(xgb.score(testInput, testTarget))
+    scoreList = [xgb.score(trainInput, trainTarget), xgb.score(testInput, testTarget)]
+    
+    print(scoreList[0])
+    print(scoreList[1])
+
+    return scoreList
 
 from xgboost import XGBRFRegressor
 def XGBRFRegressor_ML(trainInput, trainTarget, testInput, testTarget):
@@ -429,10 +494,12 @@ def XGBRFRegressor_ML(trainInput, trainTarget, testInput, testTarget):
     # print(resultTarget.importances_mean)
     
 
-    # train
-    print(xgb.score(trainInput, trainTarget))
-    # test
-    print(xgb.score(testInput, testTarget))
+    scoreList = [xgb.score(trainInput, trainTarget), xgb.score(testInput, testTarget)]
+    
+    print(scoreList[0])
+    print(scoreList[1])
+
+    return scoreList
 
 from lightgbm import LGBMRegressor
 def LGBMRegressor_ML(trainInput, trainTarget, testInput, testTarget):
@@ -456,10 +523,12 @@ def LGBMRegressor_ML(trainInput, trainTarget, testInput, testTarget):
     #                                 n_repeats=10, n_jobs=-1)
     # print(resultTarget.importances_mean)
     
-    # train
-    print(xgb.score(trainInput, trainTarget))
-    # test
-    print(xgb.score(testInput, testTarget))
+    scoreList = [xgb.score(trainInput, trainTarget), xgb.score(testInput, testTarget)]
+    
+    print(scoreList[0])
+    print(scoreList[1])
+
+    return scoreList
 
 
 from lightgbm import DaskLGBMRegressor
@@ -484,9 +553,11 @@ def DaskLGBMRegressor_ML(trainInput, trainTarget, testInput, testTarget):
     #                                 n_repeats=10, n_jobs=-1)
     # print(resultTarget.importances_mean)
     
-    # train
-    print(xgb.score(trainInput, trainTarget))
-    # test
-    print(xgb.score(testInput, testTarget))
+    scoreList = [xgb.score(trainInput, trainTarget), xgb.score(testInput, testTarget)]
+    
+    print(scoreList[0])
+    print(scoreList[1])
+
+    return scoreList
 
 testML()
