@@ -76,14 +76,14 @@ def testML():
     trainTarget = trainTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
     testTarget = testTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
 
-    # df_corr = trainInput.copy()
-    # df_corr['target'] = trainTarget[targetColumnList[0]]
+    df_corr = trainInput.copy()
+    df_corr['target'] = trainTarget[targetColumnList[1]]
 
-    # target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
-    # print(target_corr)
+    target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
+    print(target_corr)
 
-    trainTarget = trainTarget[targetColumnList[0]].values.ravel()
-    testTarget = testTarget[targetColumnList[0]].values.ravel()
+    # trainTarget = trainTarget[targetColumnList[0]].values.ravel()
+    # testTarget = testTarget[targetColumnList[0]].values.ravel()
 
 
 
@@ -94,33 +94,33 @@ def testML():
     # RidgeML(trainInput, trainTarget, testInput, testTarget)ExtraRandomForestML
     # LassoML(trainInput, trainTarget, testInput, testTarget)
     
-    dtML = DecisionTreeML(trainInput, trainTarget, testInput, testTarget)
-    rfML = RandomForestML(trainInput, trainTarget, testInput, testTarget)
-    erfML = ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget)
-    gbr = GradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
-    hgbr = HistGradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
-    # permutation_importance_ML(trainInput, trainTarget, testInput, testTarget)
+    # dtML = DecisionTreeML(trainInput, trainTarget, testInput, testTarget)
+    # rfML = RandomForestML(trainInput, trainTarget, testInput, testTarget)
+    # erfML = ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget)
+    # gbr = GradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
+    # hgbr = HistGradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
+    # # permutation_importance_ML(trainInput, trainTarget, testInput, testTarget)
 
-    xg = XGBRegressor_ML(trainInput, trainTarget, testInput, testTarget)
-    # XGBRFRegressor_ML(trainInput, trainTarget, testInput, testTarget)
+    # xg = XGBRegressor_ML(trainInput, trainTarget, testInput, testTarget)
+    # # XGBRFRegressor_ML(trainInput, trainTarget, testInput, testTarget)
 
-    lg = LGBMRegressor_ML(trainInput, trainTarget, testInput, testTarget)
+    # lg = LGBMRegressor_ML(trainInput, trainTarget, testInput, testTarget)
 
     
-    categories =["DecisionTreeML","RandomForestML","ExtraRandomForestML","GradientBoostingRegressorML","HistGradientBoostingRegressorML","XGBRegressor_ML","LGBMRegressor_ML"]
+    # categories =["DecisionTreeML","RandomForestML","ExtraRandomForestML","GradientBoostingRegressorML","HistGradientBoostingRegressorML","XGBRegressor_ML","LGBMRegressor_ML"]
 
-    values1 = [dtML[0], rfML[0], erfML[0], gbr[0], hgbr[0], xg[0], lg[0]]
-    values2 = [dtML[1], rfML[1], erfML[1], gbr[1], hgbr[1], xg[1], lg[1]]
+    # values1 = [dtML[0], rfML[0], erfML[0], gbr[0], hgbr[0], xg[0], lg[0]]
+    # values2 = [dtML[1], rfML[1], erfML[1], gbr[1], hgbr[1], xg[1], lg[1]]
 
-    x = np.arange(len(categories))  # x축 위치 [0, 1, 2, ..., 19]
-    width = 0.05  # 바 폭
+    # x = np.arange(len(categories))  # x축 위치 [0, 1, 2, ..., 19]
+    # width = 0.05  # 바 폭
     
-    plt.bar(x - width, values1, 0.1, label='Train')
-    plt.bar(x + width, values2, 0.1, label='Test')
-    plt.xticks(x, categories, rotation=45)  # x축 이름 및 회전
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
+    # plt.bar(x - width, values1, 0.1, label='Train')
+    # plt.bar(x + width, values2, 0.1, label='Test')
+    # plt.xticks(x, categories, rotation=45)  # x축 이름 및 회전
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.show()
     
 
 
@@ -560,4 +560,5 @@ def DaskLGBMRegressor_ML(trainInput, trainTarget, testInput, testTarget):
 
     return scoreList
 
-testML()
+if __name__ == "__main__":
+    testML()

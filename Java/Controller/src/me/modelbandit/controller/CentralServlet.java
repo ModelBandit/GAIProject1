@@ -25,26 +25,11 @@ public class CentralServlet extends HttpServlet {
     public CentralServlet() {
         super();
 //        System.out.println(projectRoot);
-        String pyMainPath = "Python/main.py";
         
-        String path = projectRoot+pyMainPath;
+//        String pyMainPath = "Python/main.py";
+//        String path = projectRoot+pyMainPath;
 //        System.out.println(path);
         
-        ProcessBuilder pb = new ProcessBuilder("python",path);
-        
-        Process proc;
-        try {
-			proc = pb.start();
-			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-			String line;
-			
-			while((line = br.readLine()) != null) {
-				System.out.println(line);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
     }
 
 	/**
