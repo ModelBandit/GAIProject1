@@ -23,9 +23,32 @@ trainTargetDir = "resources/dev02/trainData/targetData"
 testInputDir = "resources/dev02/testData/inputData"
 testTargetDir = "resources/dev02/testData/targetData"
 encoding = "utf-8"
+engColumnList = ["inderstryType", 
+              "companyCount", "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
+              "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+              "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
+              "workerCount", "workerMaleRate", "workerFemaleRate", "singlePropWorkerRate", "multiBusinessWorkerRate", 
+              "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
+              "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+              "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
+              "avgAge","avgServYear","avgWorkDay","avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"] 
+
 # columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count"]
-columnList = ["workerCount", "maleCount","femaleCount","ageLt40Count","ageGte40Count", "minSalary", "maxSalary", "meanSalary"]
-targetColumnList = ["companyCount", "workerCount"] # "companyCount",
+columnList = [
+            #   "companyCount", 
+            #   "ownerMaleRate","singlePropCompanyRate", 
+            #   "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+            #   "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
+            #   "workerCount", 
+            #   "workerMaleRate", "singlePropWorkerRate", 
+            #   "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
+            #   "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+            #   "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
+            #   "avgAge",
+              "avgServYear","avgWorkDay",
+            #   "avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
+            ]
+# targetColumnList = ["companyCount", "workerCount"] # "companyCount",
 
 
 def loadAllData(directory, columnList):
@@ -53,34 +76,37 @@ def testML():
     # testInput = loadAllData(inputDataDir, columnList)#.values
     # testTarget = loadAllData(targetDataDir, targetColumnList)#.values
 
-    inputDataDir = r".\resources\dev02\haveSalary\inputData"
-    targetDataDir = r".\resources\dev02\haveSalary\targetData"
+    inputDataDir = r"resources\dev02\data"
     inputDf = loadAllData(inputDataDir, columnList)
-    targetDf = loadAllData(targetDataDir, targetColumnList)
+
+    for i in range(len(columnList)):
+        for j in range(len(columnList)):
+            cov = inputDf[[columnList[i], columnList[j]]].cov()
+            print(f"{columnList[i]} \n{columnList[j]} \n{cov}")
 
     # 섞으려고 추가함
     # inputDf = pd.concat([trainInput, testInput])
     # targetDf = pd.concat([trainTarget, testTarget])
 
 
-    # corr_matrix = pd.DataFrame(inputDf, columns=inputDf.columns).corr()
-    # plt.figure(figsize=(200,200))
-    # sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
-    # plt.title("Feature Correlation Matrix")
-    # plt.show()
+    corr_matrix = pd.DataFrame(inputDf, columns=inputDf.columns).corr()
+    plt.figure(figsize=(200,200))
+    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
+    plt.title("Feature Correlation Matrix")
+    plt.show()
 
 
-    trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
-    trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int, columnList[6]:int, columnList[7]:int})
-    testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int  , columnList[5]:int, columnList[6]:int, columnList[7]:int})
-    trainTarget = trainTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
-    testTarget = testTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
+    # trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
+    # trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int, columnList[6]:int, columnList[7]:int})
+    # testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int  , columnList[5]:int, columnList[6]:int, columnList[7]:int})
+    # trainTarget = trainTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
+    # testTarget = testTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
 
-    df_corr = trainInput.copy()
-    df_corr['target'] = trainTarget[targetColumnList[1]]
+    # df_corr = trainInput.copy()
+    # df_corr['target'] = trainTarget[targetColumnList[1]]
 
-    target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
-    print(target_corr)
+    # target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
+    # print(target_corr)
 
     # trainTarget = trainTarget[targetColumnList[0]].values.ravel()
     # testTarget = testTarget[targetColumnList[0]].values.ravel()

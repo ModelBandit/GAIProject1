@@ -10,135 +10,110 @@ from sklearn.model_selection import train_test_split
 
 projectRoot = "./"
 resourcesDir = "resources/dev02/haveSalary/예외"
-encoding = "utf-8-sig"
+encoding = "utf-8"
+
+
+engColumnList = ["inderstryType", 
+              "companyCount", "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
+              "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+              "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
+              "workerCount", "workerMaleRate", "workerFemaleRate", "singlePropWorkerRate", "multiBusinessWorkerRate", 
+              "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
+              "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+              "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
+              "avgAge","avgServYear","avgWorkDay","avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"] 
+
 # columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count"]
-columnList = ["code", "workerCount", "maleCount","femaleCount","ageLt40Count","ageGte40Count", "minSalary", "maxSalary","meanSalary"]
-targetColumnList = ["workerCount"] # "companyCount",
-codeList = [
-    "농업임업및어업",
-    "광업",
-    "제조업",
-    "전기가스증기및공기조절공급업",
-    "수도하수및폐기물처리원료재생업",
-    "건설업",
-    "도매및소매업",
-    "운수및창고업",
-    "숙박및음식점업",
-    "정보통신업",
-    "금융및보험업",
-    "부동산업",
-    "전문과학및술서비스업",
-    "사업시설관리사업지원및임대서비스업",
-    "공공행정국방및사회보장행정",
-    "교육서비스업",
-    "보건업및사회복지서비스업",
-    "예술스포츠및여가관련서비스업",
-    "협회및단체수리및기타개인서비스업",
-    "기타"
-]
+columnList = [
+            #   "companyCount", 
+            #   "ownerMaleRate",
+            #   "singlePropCompanyRate", 
+            #   "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+            #   "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
+            #   "workerCount", 
+            #   "workerMaleRate", "singlePropWorkerRate", 
+            #   "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
+              "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+              "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
+            #   "avgAge",
+            "avgServYear",
+            "avgWorkDay",
+            #   "avgTotalWorkTime",
+            #   "avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
+            ]
 
 plt.rcParams['font.family'] ='Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] =False
 
-def loadAllMerge(directory, targetList):
-    df = loadAllData(directory, columnList)
+def loadAllData(directory, columnList):
+    fileNames = os.listdir(directory)
 
-    newDf = pd.DataFrame(columns=targetList)
-    count = 0
-    for i in range(0, len(codeList)):
-        dd = df[df[columnList[0]] == codeList[i]]
+    df = pd.DataFrame(columns=columnList)
+    for fName in fileNames:
+        path = f"{directory}/{fName}"
+        newDf = pd.read_csv(path, encoding=encoding)[columnList]
 
-        if len(dd.index) < 1:
-            continue
-        
-        newList = [codeList[i], 0,0,0,0,0,0,0,0]
-        for l in range(1, len(targetList)-3):
-            
-            data = dd[targetList[l]].values
-            for j in range(len(dd.index)):
-                # print(data)
-                newList[l] += int(data[j])
-        
-        for l in range(6, len(targetList)):
-            data = dd[targetList[l]].values
-            n = len(dd.index)
-            for j in range(n):
-                # print(data)
-                newList[l] += int(data[j])
-            newList[l] = newList[l] // n
+        df = pd.concat([df, newDf])
+    return df
 
-        newDf.loc[count] = newList
-        count+=1
+def drawScatter():
+    inputDataDir = r"resources\dev02\data"
+    df = loadAllData(inputDataDir, columnList)
     
-    return newDf
-
-def sumDF(dataFrame:pd.DataFrame):
-    num = 0
-    for i in range(len(dataFrame.index)):
-        num += dataFrame.iloc[i]
-    return num
-
-def heatmap():
-    inputDataDir = r".\resources\dev02\haveSalary\inputData"
-    inputDf = loadAllData(inputDataDir, columnList)
-    
-    corr_matrix = pd.DataFrame(inputDf, columns=inputDf.columns).corr()
-    plt.figure(figsize=(200,200))
-    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
-    plt.title("Feature Correlation Matrix")
+    sns.scatterplot(data=df, x="avgServYear", y="avgWorkDay")
+    plt.title("avgServYear vs avgWorkDay")
     plt.show()
 
-def columnRate():
-    # targetList = [columnList[0], columnList[5]]
-    df = loadAllMerge(resourcesDir, columnList)
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 
-    for i in codeList:
-        newdf = df[df[columnList[0]] == i]
-        if len(newdf.index) < 1:
-            continue
-        labels = [columnList[4], columnList[5]]
-        ratio = [sumDF(newdf[columnList[4]]),sumDF(newdf[columnList[5]])]
-        print(ratio)
-        plt.title(i)
-        plt.pie(ratio, labels=labels, autopct='%.1f%%')
-        plt.show()
+def drawPCA():
+    inputDataDir = r"resources\dev02\data"
+    # 예: 비율 변수들만 선택
+    cols = ["singlePropCompanyRate", "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+              "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",]
+    df = loadAllData(inputDataDir, cols)
 
-def jobAndPay():
-    df = loadAllMerge(resourcesDir, columnList)
-    categories =[*df[columnList[0]]]
+    # 정규화 → PCA는 스케일에 민감함
+    scaled = StandardScaler().fit_transform(df)
 
-    # 각 카테고리에 대해 바 3개씩 (예: 세 가지 모델의 점수)
-    values1 = [*df[columnList[6]]]
-    values2 = [*df[columnList[7]]]
-    values3 = [*df[columnList[8]]]
+    # PCA 적용 (설명력 높은 주성분만 남김)
+    pca = PCA(n_components=2)
+    pca_result = pca.fit_transform(scaled)
 
-    x = np.arange(len(categories))  # x축 위치 [0, 1, 2, ..., 19]
-    width = 0.1  # 바 폭
-
-    
-    plt.bar(x - width, values1, width, label='min')
-    plt.bar(x,         values2, width, label='max')
-    plt.bar(x + width, values3, width, label='mean')
-    plt.xticks(x, categories, rotation=45)  # x축 이름 및 회전
-    plt.legend()
-    plt.tight_layout()
+    plt.scatter(pca_result[:, 0], pca_result[:, 1])
+    plt.title("PCA 결과 시각화")
+    plt.xlabel("PC1")
+    plt.ylabel("PC2")
     plt.show()
 
-from sklearn.tree import plot_tree
-def showTree():
-    inputDataDir = r".\resources\dev02\haveSalary\inputData"
-    targetDataDir = r".\resources\dev02\haveSalary\targetData"
-    inputDf = loadAllData(inputDataDir, columnList)
-    targetDf = loadAllData(targetDataDir, targetColumnList)
-    trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
-    tree = DecisionTreeML(trainInput, testInput, trainTarget, testTarget)
 
-    plt.figure(figsize=(10,7))
-    plot_tree(tree)
+from sklearn.cluster import KMeans
+def drawKMeans():
+    inputDataDir = r"resources\dev02\data"
+    # 예: 비율 변수들만 선택
+    cols = ["singlePropCompanyRate", "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+              "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",]
+    df = loadAllData(inputDataDir, cols)
+
+    # 정규화 → PCA는 스케일에 민감함
+    scaled = StandardScaler().fit_transform(df)
+
+    # PCA 적용 (설명력 높은 주성분만 남김)
+    pca = PCA(n_components=2)
+    pca_result = pca.fit_transform(scaled)
+
+    inertias = []
+    for k in range(1, 21):
+        km = KMeans(n_clusters=k, random_state=42)
+        km.fit(pca_result)
+        inertias.append(km.inertia_)
+
+    plt.plot(range(1, 21), inertias, marker='o')
+    plt.xlabel("Number of clusters")
+    plt.ylabel("Inertia")
+    plt.title("Elbow Method")
     plt.show()
 
-# columnRate()
-# jobAndPay()
-showTree()
-
-
+if __name__ == "__main__":
+    drawKMeans()
