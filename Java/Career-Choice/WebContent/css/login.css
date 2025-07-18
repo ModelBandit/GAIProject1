@@ -1,0 +1,76 @@
+/* login.css */
+.login-wrapper {
+  max-width: 400px;
+  margin: 60px auto;
+  padding: 30px;
+  background-color: #f8f8f8; 
+  border-radius: 16px;
+  color: #333; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #00b894;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  color: #555;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #ffffff;
+  color: #333;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: #00b894;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: #00a17a;
+}
+
+.goto-signup {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.goto-signup a {
+  color: #00b894;
+  text-decoration: none;
+}
+
+.goto-signup a:hover {
+  text-decoration: underline;
+}

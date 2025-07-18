@@ -1,0 +1,45 @@
+/* about.css */
+@charset "UTF-8";
+
+.about-wrapper {
+  max-width: 960px;
+  margin: 80px auto;
+  padding: 0 20px;
+  color: #555; 
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.about-wrapper h1,
+.about-wrapper h2 {
+  color: #00b894;
+  margin-bottom: 20px;
+}
+
+.about-wrapper p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 24px;
+  color: #555; 
+}
+
+.about-wrapper ul {
+  padding-left: 20px;
+  margin-bottom: 32px;
+}
+
+.about-wrapper li {
+  margin-bottom: 10px;
+  line-height: 1.6;
+  color: #333; 
+}
+
+.section {
+  margin-bottom: 60px;
+}
+
+@media (max-width: 768px) {
+  .about-wrapper {
+    margin-top: 40px;
+    padding: 0 16px;
+  }
+}

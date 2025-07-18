@@ -1,0 +1,72 @@
+/* faq.css */
+@charset "UTF-8";
+
+.faq-wrapper {
+  max-width: 800px;
+  margin: 80px auto;
+  padding: 0 20px;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #333; 
+}
+
+.faq-wrapper h1 {
+  color: #00b894;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.accordion-item {
+  border-bottom: 1px solid #ccc;
+  padding: 12px 0;
+}
+
+.accordion-header {
+  background: none;
+  color: #333;
+  font-size: 1.05rem;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 12px 0;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.accordion-header.active {
+  color: #00b894;
+}
+
+.accordion-body {
+  display: none;
+  padding: 10px 0 10px 10px;
+  font-size: 0.95rem;
+  color: #555; 
+  line-height: 1.6;
+}
+
+.email-section {
+  margin-top: 60px;
+  text-align: center;
+}
+
+.email-section p {
+  font-size: 1rem;
+  color: #555; 
+  margin-bottom: 12px;
+}
+
+.email-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #00b894;
+  color: white;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.email-btn:hover {
+  background-color: #009f77;
+}

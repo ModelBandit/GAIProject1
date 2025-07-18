@@ -13,6 +13,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import GridSearchCV, train_test_split
 
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 
 
@@ -35,21 +36,40 @@ engColumnList = ["inderstryType",
 
 # columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count"]
 columnList = [
-            #   "companyCount", 
-            #   "ownerMaleRate","singlePropCompanyRate", 
-            #   "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
-            #   "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
-            #   "workerCount", 
-            #   "workerMaleRate", "singlePropWorkerRate", 
-            #   "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
-            #   "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
-            #   "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
-            #   "avgAge",
+              "companyCount", 
+              "ownerMaleRate","ownerFemaleRate","singlePropCompanyRate", "multiBusinessCompanyRate",
+              "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+              "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
+              "workerCount", 
+              "workerMaleRate", "workerFemaleRate", "singlePropWorkerRate", "multiBusinessWorkerRate",
+              "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
+              "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+              "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
+              "avgAge",
               "avgServYear","avgWorkDay",
-            #   "avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
+              "avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
             ]
 # targetColumnList = ["companyCount", "workerCount"] # "companyCount",
 
+customKeyCodeList =[ 
+"농업임업및어업",
+"광업",
+"제조업",
+"전기가스수도하수",
+"건설업",
+"도매및소매업",
+"운수및창고업",
+"숙박및음식점업",
+"정보통신업",
+"금융및보험업",
+"부동산업시설관리지원임대",
+"전문과학및기술서비스업",
+#"공공행정국방및사회보장행정", # 스킵
+"교육서비스업",
+"보건업및사회복지서비스업",
+"오락문화및운동관련서비스업",
+"기타공공수리및개인서비스업",
+]
 
 def loadAllData(directory, columnList):
     fileNames = os.listdir(directory)
@@ -77,26 +97,33 @@ def testML():
     # testTarget = loadAllData(targetDataDir, targetColumnList)#.values
 
     inputDataDir = r"resources\dev02\data"
-    inputDf = loadAllData(inputDataDir, columnList)
+    inputDf = loadAllData(inputDataDir, engColumnList)
+    targetDataDir = r"resources\dev02\target"
+    targetDf = loadAllData(targetDataDir, engColumnList)
 
-    for i in range(len(columnList)):
-        for j in range(len(columnList)):
-            cov = inputDf[[columnList[i], columnList[j]]].cov()
-            print(f"{columnList[i]} \n{columnList[j]} \n{cov}")
+    # inputDf = inputDf[inputDf["inderstryType"] == customKeyCodeList[15]]
+    # targetDf = targetDf[targetDf["inderstryType"] == customKeyCodeList[15]]
+    inputDf = inputDf[columnList]
+    targetDf = targetDf[columnList]
+
+    # for i in range(len(columnList)):
+    #     for j in range(len(columnList)):
+    #         cov = inputDf[[columnList[i], columnList[j]]].cov()
+    #         print(f"{columnList[i]} \n{columnList[j]} \n{cov}")
 
     # 섞으려고 추가함
     # inputDf = pd.concat([trainInput, testInput])
     # targetDf = pd.concat([trainTarget, testTarget])
 
 
-    corr_matrix = pd.DataFrame(inputDf, columns=inputDf.columns).corr()
-    plt.figure(figsize=(200,200))
-    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
-    plt.title("Feature Correlation Matrix")
-    plt.show()
+    # corr_matrix = pd.DataFrame(inputDf, columns=inputDf.columns).corr()
+    # plt.figure(figsize=(200,200))
+    # sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
+    # plt.title("Feature Correlation Matrix")
+    # plt.show()
 
 
-    # trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
+    trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
     # trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int  , columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # trainTarget = trainTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
@@ -117,9 +144,11 @@ def testML():
 
     
     # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget)
-    # RidgeML(trainInput, trainTarget, testInput, testTarget)ExtraRandomForestML
-    # LassoML(trainInput, trainTarget, testInput, testTarget)
+    # RidgeML(trainInput, trainTarget, testInput, testTarget)
+    LassoML(trainInput, trainTarget, testInput, testTarget)
     
+    
+
     # dtML = DecisionTreeML(trainInput, trainTarget, testInput, testTarget)
     # rfML = RandomForestML(trainInput, trainTarget, testInput, testTarget)
     # erfML = ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget)
@@ -206,7 +235,7 @@ def PolynomialLinearML(trainInput, trainTarget, testInput, testTarget):
     # print(trainInput.shape)
     # print(trainTarget.shape)
     print("PolynomialLinearML")
-    lr = make_pipeline(PolynomialFeatures(degree=4, include_bias=False), LinearRegression())
+    lr = make_pipeline(PolynomialFeatures(degree=2, include_bias=False), LinearRegression())
     lr.fit(trainInput, trainTarget)
 
     # train
@@ -223,11 +252,10 @@ def PolynomialLinearML(trainInput, trainTarget, testInput, testTarget):
 def RidgeML(trainInput, trainTarget, testInput, testTarget):
 
     print("RidgeML")
-    
     alphaList = [0.001,0.01,0.1,1,10,100]
     for alpha in alphaList:
         print(f"RidgeML - alpha: {alpha}")
-        ridge = Ridge(alpha=alpha)
+        ridge = make_pipeline(StandardScaler(), Ridge(alpha=alpha))
         ridge.fit(trainInput, trainTarget)
 
         # train
@@ -240,17 +268,30 @@ def LassoML(trainInput, trainTarget, testInput, testTarget):
 
     print("LassoML")
     
-    alphaList = [0.001,0.01,0.1,1,10,100]
-    for alpha in alphaList:
-        print(f"LassoML - alpha: {alpha}")
-        lasso = Lasso(alpha=alpha)
-        lasso.fit(trainInput, trainTarget)
+    alpha = 0.0001
+    # alphaList = [0.001,0.01,0.1,1,10,100]
+    # for alpha in alphaList:
+    print(f"LassoML - alpha: {alpha}")
+    lasso = make_pipeline(StandardScaler(), Lasso(alpha=alpha))
+    lasso.fit(trainInput, trainTarget)
 
-        # train
-        print(lasso.score(trainInput, trainTarget))
+    feature_names = trainInput.columns  # 열 이름 가져오기
+    coefficients = lasso.named_steps["lasso"].coef_[0]
 
-        # test
-        print(lasso.score(testInput, testTarget))
+    coef_df = pd.DataFrame({
+        "Feature": feature_names,
+        "Coefficient": coefficients
+    })
+
+    # 중요도 내림차순 정렬
+    coef_df = coef_df.sort_values(by="Coefficient", key=abs, ascending=False)
+
+    print(coef_df)
+    # train
+    print(lasso.score(trainInput, trainTarget))
+
+    # test
+    print(lasso.score(testInput, testTarget))
     
 est = 300
 mDepth = 15

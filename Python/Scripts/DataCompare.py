@@ -583,24 +583,77 @@ def mergeInderstryAndHire(dirList, saveDir):
 # directory = r"resources\Preprocess\inderstry\convertCode"
 # saveDir = r"resources\Preprocess\inderstry\rate"
 # convertInderstryRate(directory, saveDir)
+# "avgServYear","avgWorkDay","avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"] 
+
+
+def dataSliceAugmentation(inputDir):
+    inputNames = os.listdir(inputDir)
+
+    for i in range(len(inputNames)-1):
+        iPath = f"{inputDir}/{inputNames[i]}"
+        nPath = f"{inputDir}/{inputNames[i+1]}"
+
+        df = pd.read_csv(iPath, encoding=encoding)
+        nextDf = pd.read_csv(nPath, encoding=encoding)
+
+        columnList = [*df.columns]
+
+        newDf = pd.DataFrame(columns=df.columns)
+        count = 0
+        for j in range(len(df.index)):
+            index = df.iloc[j]
+
+            columnString = str(index[columnList[0]])
+            ndf = nextDf[nextDf[columnList[0]] == columnString]
+
+            dataList = [columnString]
+            for l in range(1, len(columnList)):
+                a = index[columnList[l]]
+                b = ndf[columnList[l]][ndf.first_valid_index()]
+
+                if(str(columnList[l]) == "companyCount" or str(columnList[l]) == "workerCount"):
+                    # a = int(a)
+                    # b = int(b)
+                    dataList.append(round((a + b) / 2, 0))
+                else:
+                    # a = float(a)
+                    # b = float(b)
+                    dataList.append(round((a + b) / 2, 3))
+
+            newDf.loc[count] = dataList
+            count += 1
+        
+        savePath = f"{inputDir}/{inputNames[i]}_1"   
+        if(os.path.exists(savePath)):
+            savePath = f"{inputDir}/{inputNames[i]}_0"   
+        newDf.to_csv(savePath, index=False, encoding=encoding)
+
+        
+
+
+        
 
 if __name__ == "__main__":
-        
-    dirList = [
-        r"D:\GAIP\resources\Preprocess\inderstry\rate",
-        r"D:\GAIP\resources\Preprocess\hireYearConvert",
-    ]
-    saveDir = r"resources\dev02\data"
-    mergeInderstryAndHire(dirList, saveDir)
+    # dirList = [
+    #     r"D:\GAIP\resources\Preprocess\inderstry\rate",
+    #     r"D:\GAIP\resources\Preprocess\hireYearConvert",
+    # ]
+    # saveDir = r"resources\dev02\data"
+    # mergeInderstryAndHire(dirList, saveDir)
 
-    # 대표자성별, 종사자성별, 사업체구분 사업체/종사자, 종사자구분 종사자, 종사자규모구분 사업체/종사자, 산업평균
-    # -> 사업체 수, 사업체 대표자 성별 비율, 사업체 사업체 구분 비율, 사업체 종사자규모 구분 비율, 
-    engColumnList = ["inderstryType", 
-                "companyCount", "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
-                "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
-                "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
-                "workerCount", "workerMaleRate", "workerFemaleRate", "singlePropWorkerRate", "multiBusinessWorkerRate", 
-                "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
-                "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
-                "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
-                "avgAge","avgServYear","avgWorkDay","avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"] 
+    # # 대표자성별, 종사자성별, 사업체구분 사업체/종사자, 종사자구분 종사자, 종사자규모구분 사업체/종사자, 산업평균
+    # # -> 사업체 수, 사업체 대표자 성별 비율, 사업체 사업체 구분 비율, 사업체 종사자규모 구분 비율, 
+    # engColumnList = ["inderstryType", 
+    #             "companyCount", "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
+    #             "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+    #             "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
+    #             "workerCount", "workerMaleRate", "workerFemaleRate", "singlePropWorkerRate", "multiBusinessWorkerRate", 
+    #             "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
+    #             "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+    #             "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
+    #             "avgAge",
+    # inputDir = r"resources\dev02\data"
+    # dataSliceAugmentation(inputDir)
+    # inputDir = r"resources\dev02\target"
+    # dataSliceAugmentation(inputDir)
+    pass
