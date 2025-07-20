@@ -187,11 +187,9 @@ def drawKMeans():
     # 예: 비율 변수들만 선택
     # cols = ["singlePropCompanyRate", "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
     #           "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",]
-    cols = ["workerMaleRate", "avgAge",
-            "avgServYear",
-            "avgWorkDay",
-              "avgTotalWorkTime",
-              "avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"]
+    cols = ["singlePropCompanyRate",
+           "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+              "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",]
     df = loadAllData(inputDataDir, engColumnList)
     typeList = df["inderstryType"].values
     # print(typeList)

@@ -623,9 +623,11 @@ def dataSliceAugmentation(inputDir):
             newDf.loc[count] = dataList
             count += 1
         
-        savePath = f"{inputDir}/{inputNames[i]}_1"   
-        if(os.path.exists(savePath)):
-            savePath = f"{inputDir}/{inputNames[i]}_0"   
+        num = 4
+        savePath = f"{inputDir}/{inputNames[i]}_{num}"   
+        while(os.path.exists(savePath)):
+            num -= 1
+            savePath = f"{inputDir}/{inputNames[i]}_{num}"  
         newDf.to_csv(savePath, index=False, encoding=encoding)
 
         
@@ -652,8 +654,8 @@ if __name__ == "__main__":
     #             "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
     #             "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
     #             "avgAge",
-    # inputDir = r"resources\dev02\data"
-    # dataSliceAugmentation(inputDir)
-    # inputDir = r"resources\dev02\target"
-    # dataSliceAugmentation(inputDir)
+    inputDir = r"resources\dev02\data"
+    dataSliceAugmentation(inputDir)
+    inputDir = r"resources\dev02\target"
+    dataSliceAugmentation(inputDir)
     pass

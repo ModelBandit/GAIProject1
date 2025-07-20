@@ -52,6 +52,7 @@ columnList = [
 # targetColumnList = ["companyCount", "workerCount"] # "companyCount",
 
 customKeyCodeList =[ 
+"전체",
 "농업임업및어업",
 "광업",
 "제조업",
@@ -69,6 +70,7 @@ customKeyCodeList =[
 "보건업및사회복지서비스업",
 "오락문화및운동관련서비스업",
 "기타공공수리및개인서비스업",
+
 ]
 
 def loadAllData(directory, columnList):
@@ -101,8 +103,8 @@ def testML():
     targetDataDir = r"resources\dev02\target"
     targetDf = loadAllData(targetDataDir, engColumnList)
 
-    # inputDf = inputDf[inputDf["inderstryType"] == customKeyCodeList[15]]
-    # targetDf = targetDf[targetDf["inderstryType"] == customKeyCodeList[15]]
+    # inputDf = inputDf[inputDf["inderstryType"] == customKeyCodeList[2]]
+    # targetDf = targetDf[targetDf["inderstryType"] == customKeyCodeList[2]]
     inputDf = inputDf[columnList]
     targetDf = targetDf[columnList]
 
@@ -140,12 +142,12 @@ def testML():
 
 
 
-    # lML = LinearML(trainInput, trainTarget, testInput, testTarget)
+    lML = LinearML(trainInput, trainTarget, testInput, testTarget)
 
     
     # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget)
     # RidgeML(trainInput, trainTarget, testInput, testTarget)
-    LassoML(trainInput, trainTarget, testInput, testTarget)
+    # LassoML(trainInput, trainTarget, testInput, testTarget)
     
     
 
@@ -154,7 +156,7 @@ def testML():
     # erfML = ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget)
     # gbr = GradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
     # hgbr = HistGradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
-    # # permutation_importance_ML(trainInput, trainTarget, testInput, testTarget)
+    # permutation_importance_ML(trainInput, trainTarget, testInput, testTarget)
 
     # xg = XGBRegressor_ML(trainInput, trainTarget, testInput, testTarget)
     # # XGBRFRegressor_ML(trainInput, trainTarget, testInput, testTarget)
@@ -193,6 +195,17 @@ def LinearML(trainInput, trainTarget, testInput, testTarget):
         # positive=False          # True로 설정하면 회귀 계수를 음수가 아닌 값으로 강제함 (비음수 회귀)
     )
     lr.fit(trainInput, trainTarget)
+
+    path = r"resources\dev02\data\2009.csv"
+    df = pd.read_csv(path, encoding=encoding)
+    data = df[columnList].values
+    for i in range(16):
+        data = lr.predict(data)
+    
+    df = pd.DataFrame(data, columns=columnList)
+    df.insert(1, engColumnList[0], customKeyCodeList)
+    df = df[engColumnList]
+    df.to_csv("./asd.csv", index=False, encoding="utf-8-sig")
 
     scoreList = [lr.score(trainInput, trainTarget), lr.score(testInput, testTarget)]
     
@@ -268,25 +281,25 @@ def LassoML(trainInput, trainTarget, testInput, testTarget):
 
     print("LassoML")
     
-    alpha = 0.0001
+    alpha = 1
     # alphaList = [0.001,0.01,0.1,1,10,100]
     # for alpha in alphaList:
     print(f"LassoML - alpha: {alpha}")
     lasso = make_pipeline(StandardScaler(), Lasso(alpha=alpha))
     lasso.fit(trainInput, trainTarget)
 
-    feature_names = trainInput.columns  # 열 이름 가져오기
-    coefficients = lasso.named_steps["lasso"].coef_[0]
+    # feature_names = trainInput.columns  # 열 이름 가져오기
+    # coefficients = lasso.named_steps["lasso"].coef_[0]
 
-    coef_df = pd.DataFrame({
-        "Feature": feature_names,
-        "Coefficient": coefficients
-    })
+    # coef_df = pd.DataFrame({
+    #     "Feature": feature_names,
+    #     "Coefficient": coefficients
+    # })
 
-    # 중요도 내림차순 정렬
-    coef_df = coef_df.sort_values(by="Coefficient", key=abs, ascending=False)
+    # # 중요도 내림차순 정렬
+    # coef_df = coef_df.sort_values(by="Coefficient", key=abs, ascending=False)
 
-    print(coef_df)
+    # print(coef_df)
     # train
     print(lasso.score(trainInput, trainTarget))
 
