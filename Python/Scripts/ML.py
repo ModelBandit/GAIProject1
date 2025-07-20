@@ -37,11 +37,13 @@ engColumnList = ["inderstryType",
 # columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count"]
 columnList = [
               "companyCount", 
-              "ownerMaleRate","ownerFemaleRate","singlePropCompanyRate", "multiBusinessCompanyRate",
+              "ownerMaleRate",#"ownerFemaleRate",
+              "singlePropCompanyRate", #"multiBusinessCompanyRate",
               "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
               "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
               "workerCount", 
-              "workerMaleRate", "workerFemaleRate", "singlePropWorkerRate", "multiBusinessWorkerRate",
+              "workerMaleRate", #"workerFemaleRate", 
+              "singlePropWorkerRate", #"multiBusinessWorkerRate",
               "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
               "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
               "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
@@ -64,7 +66,6 @@ customKeyCodeList =[
 "금융및보험업",
 "부동산업시설관리지원임대",
 "전문과학및기술서비스업",
-#"공공행정국방및사회보장행정", # 스킵
 "교육서비스업",
 "보건업및사회복지서비스업",
 "오락문화및운동관련서비스업",
@@ -75,9 +76,12 @@ def loadAllData(directory, columnList):
     fileNames = os.listdir(directory)
 
     df = pd.DataFrame(columns=columnList)
+    # print(df["selfEmpFamilyWorkerRate"])
     for fName in fileNames:
         path = f"{directory}/{fName}"
         newDf = pd.read_csv(path, encoding=encoding)[columnList]
+
+        # print(newDf["selfEmpFamilyWorkerRate"])
 
         df = pd.concat([df, newDf])
     return df
@@ -105,7 +109,10 @@ def testML():
     # targetDf = targetDf[targetDf["inderstryType"] == customKeyCodeList[15]]
     inputDf = inputDf[columnList]
     targetDf = targetDf[columnList]
-
+    # print(inputDf.isna().sum())
+    # print(targetDf.isna().sum())
+    # print(np.nanmax(inputDf.values))
+    # print(np.nanmax(targetDf.values))
     # for i in range(len(columnList)):
     #     for j in range(len(columnList)):
     #         cov = inputDf[[columnList[i], columnList[j]]].cov()
@@ -145,12 +152,12 @@ def testML():
     
     # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget)
     # RidgeML(trainInput, trainTarget, testInput, testTarget)
-    LassoML(trainInput, trainTarget, testInput, testTarget)
+    # LassoML(trainInput, trainTarget, testInput, testTarget)
     
     
 
-    # dtML = DecisionTreeML(trainInput, trainTarget, testInput, testTarget)
-    # rfML = RandomForestML(trainInput, trainTarget, testInput, testTarget)
+    dtML = DecisionTreeML(trainInput, trainTarget, testInput, testTarget)
+    rfML = RandomForestML(trainInput, trainTarget, testInput, testTarget)
     # erfML = ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget)
     # gbr = GradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
     # hgbr = HistGradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
@@ -184,15 +191,30 @@ def LinearML(trainInput, trainTarget, testInput, testTarget):
     # print(trainInput.shape)
     # print(trainTarget.shape)
     print("LinearML")
-    lr = LinearRegression(
-        # * 인자전달은 반드시 키워드 인자로 전달할 것 (그런데 뭔가 다른가봄)
-        # fit_intercept=True,     # True일 경우 절편(bias, intercept)을 학습함 (y = wx + b). False면 b 생략됨.
-        # copy_X=True,            # X를 복사할지 여부. True면 원본 X는 변경되지 않음.
-        # tol=1e-6,               # 반복 수치 해석 알고리즘의 수렴 허용 오차 (작을수록 정확하지만 느림)
-        # n_jobs=None,            # 병렬 연산에 사용할 CPU 코어 수 (None이면 1, -1이면 전체 사용)
-        # positive=False          # True로 설정하면 회귀 계수를 음수가 아닌 값으로 강제함 (비음수 회귀)
-    )
+    lr = make_pipeline(StandardScaler(), LinearRegression())
+    # lr = LinearRegression(
+    #     # * 인자전달은 반드시 키워드 인자로 전달할 것 (그런데 뭔가 다른가봄)
+    #     # fit_intercept=True,     # True일 경우 절편(bias, intercept)을 학습함 (y = wx + b). False면 b 생략됨.
+    #     # copy_X=True,            # X를 복사할지 여부. True면 원본 X는 변경되지 않음.
+    #     # tol=1e-6,               # 반복 수치 해석 알고리즘의 수렴 허용 오차 (작을수록 정확하지만 느림)
+    #     # n_jobs=None,            # 병렬 연산에 사용할 CPU 코어 수 (None이면 1, -1이면 전체 사용)
+    #     # positive=False          # True로 설정하면 회귀 계수를 음수가 아닌 값으로 강제함 (비음수 회귀)
+    # )
     lr.fit(trainInput, trainTarget)
+
+    path = r"resources\dev02\data\2009.csv"
+    saveDir = r"resources\dev02\predict\predict"
+    df = pd.read_csv(path, encoding=encoding)
+    newColumns = customKeyCodeList
+    newColumns.insert(0, "전체")
+    data = df
+    for i in range(1, 13): 
+        data = lr.predict(data[columnList].values)
+        data = pd.DataFrame(data, columns=columnList)
+        preData = pd.DataFrame(data, columns=columnList)
+        preData.insert(1, "inderstryType", newColumns)
+        preData = preData[engColumnList]
+        preData.to_csv(f"{saveDir}/{str(i).zfill(2)}.csv", index=False, encoding="utf-8-sig")
 
     scoreList = [lr.score(trainInput, trainTarget), lr.score(testInput, testTarget)]
     

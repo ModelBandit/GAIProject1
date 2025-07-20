@@ -71,10 +71,7 @@ def reposHireData(directory):
             for i in range(len(InderstryList)):
                 indexList = [InderstryList[i]]
                 for j in range(0, len(newColumList)-1):
-                    if(years < 3 and j >= 6 and j <= 9): # 원 단위에서 천 단위로 바꿔야함
-                        indexList.append(round(float(dataList[i][l*11+j])/1000))
-                    else:
-                        indexList.append(dataList[i][l*11+j])
+                    indexList.append(dataList[i][l*11+j])
                 df.loc[i] = indexList
                 
             df = df.astype({newColumList[7]:"int32",newColumList[8]:"int32",newColumList[9]:"int32",newColumList[10]:"int32",newColumList[11]:"int32"})
@@ -586,7 +583,7 @@ def mergeInderstryAndHire(dirList, saveDir):
 # "avgServYear","avgWorkDay","avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"] 
 
 
-def dataSliceAugmentation(inputDir):
+def dataSliceAugmentation(inputDir, sliceCount):
     inputNames = os.listdir(inputDir)
 
     for i in range(len(inputNames)-1):
@@ -611,35 +608,71 @@ def dataSliceAugmentation(inputDir):
                 a = index[columnList[l]]
                 b = ndf[columnList[l]][ndf.first_valid_index()]
 
-                if(str(columnList[l]) == "companyCount" or str(columnList[l]) == "workerCount"):
-                    # a = int(a)
-                    # b = int(b)
-                    dataList.append(round((a + b) / 2, 0))
-                else:
-                    # a = float(a)
-                    # b = float(b)
-                    dataList.append(round((a + b) / 2, 3))
+                dataList.append(round((a + b) / 2, 4))
 
             newDf.loc[count] = dataList
             count += 1
         
-        savePath = f"{inputDir}/{inputNames[i]}_1"   
+        savePath = f"{inputDir}/{inputNames[i]}_{sliceCount}"   
         if(os.path.exists(savePath)):
-            savePath = f"{inputDir}/{inputNames[i]}_0"   
+            sliceCount-=1
+            savePath = f"{inputDir}/{inputNames[i]}_{sliceCount}"   
         newDf.to_csv(savePath, index=False, encoding=encoding)
 
+   
+def CompareErrorValues(trueValueDir, predictValueDir):
+    tValuesFiles = os.listdir(trueValueDir)
+    pValuesFiles = os.listdir(predictValueDir)
+
+    for i in range(len(tValuesFiles)):
+        tPath = f"{trueValueDir}/{tValuesFiles[i]}"
+        tDF = pd.read_csv(tPath)
+
+        pPath = f"{predictValueDir}/{pValuesFiles[i]}"
+        pDF = pd.read_csv(pPath)
+
+        for j in range(len(tDF.index)):
+            print(f"\t" + tDF["inderstryType"][j])
+            for l in range(1, len(tDF.columns)):
+                column = tDF.columns.values[l]
+                print(f"{column}\t{tDF[column][j]} - {pDF[column][j]} = {tDF[column][j] - pDF[column][j]}")
+                pass
+    pass     
+
+def makeTarget(absDir, saveDir):
+    fileNames = os.listdir(absDir)
+    for i in range(len(fileNames)-1):
+        curPath = f"{absDir}/{fileNames[i]}"
+        curDF = pd.read_csv(curPath, encoding=encoding)
         
+        nextPath = f"{absDir}/{fileNames[i+1]}"
+        nextDF = pd.read_csv(nextPath, encoding=encoding)
 
+        for idx in range(len(curDF.index)):
+            for col in range(1, len(curDF.columns)):
+                column = curDF.columns[col]
+                
+                curData = curDF[column][idx]
+                nextData = nextDF[column][idx]
+                rate = (nextData - curData) / curData
 
+                curDF[column][idx] = round(rate, 4)
+        path = f"{saveDir}/{fileNames[i]}"
+        curDF.to_csv(path, index=False, encoding=encoding)
         
 
 if __name__ == "__main__":
     # dirList = [
-    #     r"D:\GAIP\resources\Preprocess\inderstry\rate",
+    #     r"resources\Preprocess\inderstry\convertCode",
     #     r"D:\GAIP\resources\Preprocess\hireYearConvert",
     # ]
-    # saveDir = r"resources\dev02\data"
+    # saveDir = r"resources\Preprocess\LastAbs"
     # mergeInderstryAndHire(dirList, saveDir)
+
+
+    # absDir = r"resources\Preprocess\LastAbs"
+    # saveDir = r"resources\Preprocess\LastRate"
+    # makeTarget(absDir, saveDir)
 
     # # 대표자성별, 종사자성별, 사업체구분 사업체/종사자, 종사자구분 종사자, 종사자규모구분 사업체/종사자, 산업평균
     # # -> 사업체 수, 사업체 대표자 성별 비율, 사업체 사업체 구분 비율, 사업체 종사자규모 구분 비율, 
@@ -652,8 +685,12 @@ if __name__ == "__main__":
     #             "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
     #             "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
     #             "avgAge",
-    # inputDir = r"resources\dev02\data"
-    # dataSliceAugmentation(inputDir)
-    # inputDir = r"resources\dev02\target"
-    # dataSliceAugmentation(inputDir)
+    inputDir = r"resources\dev02\data"
+    dataSliceAugmentation(inputDir, 1)
+    inputDir = r"resources\dev02\target"
+    dataSliceAugmentation(inputDir, 1)
+
+    # preDir = r"resources\dev02\predict\predict"
+    # realDir = r"resources\dev02\predict\real"
+    # CompareErrorValues(realDir, preDir)
     pass
