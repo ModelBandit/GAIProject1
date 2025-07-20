@@ -71,10 +71,7 @@ def reposHireData(directory):
             for i in range(len(InderstryList)):
                 indexList = [InderstryList[i]]
                 for j in range(0, len(newColumList)-1):
-                    if(years < 3 and j >= 6 and j <= 9): # 원 단위에서 천 단위로 바꿔야함
-                        indexList.append(round(float(dataList[i][l*11+j])/1000))
-                    else:
-                        indexList.append(dataList[i][l*11+j])
+                    indexList.append(dataList[i][l*11+j])
                 df.loc[i] = indexList
                 
             df = df.astype({newColumList[7]:"int32",newColumList[8]:"int32",newColumList[9]:"int32",newColumList[10]:"int32",newColumList[11]:"int32"})
@@ -636,12 +633,12 @@ def dataSliceAugmentation(inputDir):
         
 
 if __name__ == "__main__":
-    # dirList = [
-    #     r"D:\GAIP\resources\Preprocess\inderstry\rate",
-    #     r"D:\GAIP\resources\Preprocess\hireYearConvert",
-    # ]
-    # saveDir = r"resources\dev02\data"
-    # mergeInderstryAndHire(dirList, saveDir)
+    dirList = [
+        r"resources\Preprocess\inderstry\rate",
+        r"resources\Preprocess\hireYearConvert",
+    ]
+    saveDir = r"resources\dev02\data"
+    mergeInderstryAndHire(dirList, saveDir)
 
     # # 대표자성별, 종사자성별, 사업체구분 사업체/종사자, 종사자구분 종사자, 종사자규모구분 사업체/종사자, 산업평균
     # # -> 사업체 수, 사업체 대표자 성별 비율, 사업체 사업체 구분 비율, 사업체 종사자규모 구분 비율, 
@@ -654,8 +651,8 @@ if __name__ == "__main__":
     #             "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
     #             "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
     #             "avgAge",
-    inputDir = r"resources\dev02\data"
-    dataSliceAugmentation(inputDir)
-    inputDir = r"resources\dev02\target"
-    dataSliceAugmentation(inputDir)
+    # inputDir = r"resources\dev02\data"
+    # dataSliceAugmentation(inputDir)
+    # inputDir = r"resources\dev02\target"
+    # dataSliceAugmentation(inputDir)
     pass
