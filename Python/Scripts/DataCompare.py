@@ -3,6 +3,7 @@ import os
 import random
 import requests
 import pandas as pd
+import numpy as np
 import json
 
 encoding = "utf-8"
@@ -23,6 +24,30 @@ def openAPI_jsonsave(url):
 
     pass
 
+engColumnList = ["inderstryType", 
+              "companyCount", "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
+              "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+              "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
+              "workerCount", "workerMaleRate", "workerFemaleRate", "singlePropWorkerRate", "multiBusinessWorkerRate", 
+              "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
+              "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+              "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
+              "avgAge","avgServYear","avgWorkDay","avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"] 
+
+columnList = [
+              "companyCount", 
+              "ownerMaleRate","ownerFemaleRate","singlePropCompanyRate", "multiBusinessCompanyRate",
+              "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+              "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
+              "workerCount", 
+              "workerMaleRate", "workerFemaleRate", "singlePropWorkerRate", "multiBusinessWorkerRate",
+              "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
+              "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+              "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
+              "avgAge",
+              "avgServYear","avgWorkDay",
+              "avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
+            ]
 def erase_etc(string:str):
     string = string.replace(" ","")
     string = string.replace(".","")
@@ -620,25 +645,65 @@ def dataSliceAugmentation(inputDir):
             newDf.loc[count] = dataList
             count += 1
         
-        num = 4
+        num = 2
         savePath = f"{inputDir}/{inputNames[i]}_{num}"   
         while(os.path.exists(savePath)):
             num -= 1
             savePath = f"{inputDir}/{inputNames[i]}_{num}"  
         newDf.to_csv(savePath, index=False, encoding=encoding)
 
-        
+def CompareErrorValues(trueValueDir, predictValueDir):
+    tValuesFiles = os.listdir(trueValueDir)
+    pValuesFiles = os.listdir(predictValueDir)
 
+    for i in range(len(tValuesFiles)):
+        tPath = f"{trueValueDir}/{tValuesFiles[i]}"
+        tDF = pd.read_csv(tPath)
+        tDF = tDF[tDF[engColumnList[0]] == "전체"]
+        tDF = tDF[columnList]
+
+        pPath = f"{predictValueDir}/{pValuesFiles[i]}"
+        pDF = pd.read_csv(pPath)
+
+        for j in range(len(tDF.index)):
+            for l in range(len(tDF.columns)):
+                column = tDF.columns.values[l]
+                print(f"{column}\t{tDF[column]} - {pDF[column][j]} = {tDF[column] - pDF[column][j]}")
+                pass
+    pass     
+
+def predictValueRate(predictDir, saveDir):
+    fileNames = os.listdir(predictDir)
+
+    for n in fileNames:
+        path = f"{predictDir}/{n}"
+        df = pd.read_csv(path, encoding=encoding)
+
+        for column in df.columns:
+            if column == "year":
+                for i in range(len(df.index)-1):
+                    df[column][i] = df[column][i] + 1
+                continue
+            else:
+                for i in range(len(df.index)-1):
+                    if(df[column][i+1] < 0):
+                        df[column][i] = -0.0001
+                    else:
+                        df[column][i] = round((df[column][i+1] - df[column][i]) / df[column][i]*100, 4)
+        df = df.drop(labels=10, axis=0)
+
+        df.to_csv(f"{saveDir}/{n}", index=False, encoding=encoding)
+    pass
 
         
 
 if __name__ == "__main__":
-    dirList = [
-        r"resources\Preprocess\inderstry\rate",
-        r"resources\Preprocess\hireYearConvert",
-    ]
-    saveDir = r"resources\dev02\data"
-    mergeInderstryAndHire(dirList, saveDir)
+    # dirList = [
+    #     r"resources\Preprocess\inderstry\rate",
+    #     r"resources\Preprocess\hireYearConvert",
+    # ]
+    # saveDir = r"resources\dev02\data"
+    # mergeInderstryAndHire(dirList, saveDir)
 
     # # 대표자성별, 종사자성별, 사업체구분 사업체/종사자, 종사자구분 종사자, 종사자규모구분 사업체/종사자, 산업평균
     # # -> 사업체 수, 사업체 대표자 성별 비율, 사업체 사업체 구분 비율, 사업체 종사자규모 구분 비율, 
@@ -655,4 +720,12 @@ if __name__ == "__main__":
     # dataSliceAugmentation(inputDir)
     # inputDir = r"resources\dev02\target"
     # dataSliceAugmentation(inputDir)
+
+    # predictDir = r"resources\compare\predict"
+    # realDir = r"resources\compare\real"
+    # CompareErrorValues(realDir, predictDir)
+    
+    predictDir = r"resources\predict"
+    saveDir = r"resources\predictRate"
+    predictValueRate(predictDir, saveDir)
     pass
