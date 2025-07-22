@@ -13,7 +13,7 @@ resourcesDir = "resources/dev02/haveSalary/예외"
 encoding = "utf-8"
 
 
-engColumnList = ["inderstryType", 
+engColumnList = ["industryType", 
               "companyCount", "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
               "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
               "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
@@ -137,7 +137,7 @@ customKeyCodeList =[
 "기타공공수리및개인서비스업",
 "전체",
 ]
-def reformInderstryCode(keycode):
+def reformindurstryCode(keycode):
     customKeyCodeMap ={ 
     "농업임업및어업":0,
     "광업":1,
@@ -159,7 +159,7 @@ def reformInderstryCode(keycode):
     }
     return customKeyCodeMap[keycode]
     
-def reformInderstryColorMap(keycode):
+def reformindurstryColorMap(keycode):
     customColorMap = {
         "농업임업및어업": 'tab:blue',            # 0
         "광업": 'tab:orange',                  # 1
@@ -191,10 +191,10 @@ def drawKMeans():
            "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
               "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",]
     df = loadAllData(inputDataDir, engColumnList)
-    typeList = df["inderstryType"].values
+    typeList = df["industryType"].values
     # print(typeList)
     for i in range(len(typeList)):
-        typeList[i] = reformInderstryCode(typeList[i])
+        typeList[i] = reformindurstryCode(typeList[i])
     typeList.astype("int32")
     # 정규화 → PCA는 스케일에 민감함
     scaled = StandardScaler().fit_transform(df[cols])

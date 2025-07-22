@@ -1215,7 +1215,7 @@ def merge_jobCode_industrialCode(srcDir, dstDir):
         else:
             jobCodeDf = jobCode7
 
-        inderstryDf = pd.DataFrame(columns=typeList)
+        indurstryDf = pd.DataFrame(columns=typeList)
         count = 0
 
         for j in range(len(srcDf.index)):
@@ -1249,18 +1249,18 @@ def merge_jobCode_industrialCode(srcDir, dstDir):
                     cl.append(d)
 
                 if(len(cl) < 1):
-                    inderstryData = inderstryDf[inderstryDf["code"] == "기타"]
-                    if(len(inderstryData.index) > 0):
+                    indurstryData = indurstryDf[indurstryDf["code"] == "기타"]
+                    if(len(indurstryData.index) > 0):
                         addList = ["workerCount","maleCount","femaleCount","ageLt40Count","ageGte40Count", "minSalary","maxSalary","meanSalary", "jobCount"]
-                        inderstryData = inderstryDf[inderstryDf["code"] == "기타"]
+                        indurstryData = indurstryDf[indurstryDf["code"] == "기타"]
                         for column in addList:
                             if int(srcDf[column][j]) < 1:
                                 continue
-                            inderstryData[column] += srcDf[column][j]
+                            indurstryData[column] += srcDf[column][j]
                             
                     else:
-                        inderstryDf.loc[count] = srcDf.iloc[j]
-                        inderstryDf["code"][count] = "기타"
+                        indurstryDf.loc[count] = srcDf.iloc[j]
+                        indurstryDf["code"][count] = "기타"
                     continue
                 else:
                     data = cl[0]
@@ -1272,31 +1272,31 @@ def merge_jobCode_industrialCode(srcDir, dstDir):
                 pass
             # print(srcType)
             srcDf.iloc[j]["code"] = srcType
-            inderstryData = inderstryDf[inderstryDf["code"] == srcType]
-            if(len(inderstryData.index) > 0):
-                # print(inderstryData)
+            indurstryData = indurstryDf[indurstryDf["code"] == srcType]
+            if(len(indurstryData.index) > 0):
+                # print(indurstryData)
                 addList = ["workerCount","maleCount","femaleCount","ageLt40Count","ageGte40Count", "minSalary","maxSalary","meanSalary", "jobCount"]
                 for column in addList:
                     if int(srcDf[column][j]) < 1:
                         continue
-                    inderstryData[column] += srcDf[column][j]
+                    indurstryData[column] += srcDf[column][j]
                     # try:
                     # except:
-                    #     a = inderstryData[column]
+                    #     a = indurstryData[column]
                     #     b = srcDf[column][j]
                     #     a += b
             else:
-                inderstryDf.loc[count] = srcDf.iloc[j]
-                inderstryDf["code"][count] = srcType
+                indurstryDf.loc[count] = srcDf.iloc[j]
+                indurstryDf["code"][count] = srcType
             count += 1
 
             salaryList = ["minSalary","maxSalary","meanSalary"]
             for salary in salaryList:
-                inderstryData[salary] = inderstryData[salary] / srcDf["jobCount"][j]
+                indurstryData[salary] = indurstryData[salary] / srcDf["jobCount"][j]
 
 
-        inderstryDf = inderstryDf.astype({typeList[1]:"int32",typeList[2]:"int32",typeList[3]:"int32",typeList[4]:"int32",typeList[5]:"int32",typeList[6]:"int32",typeList[7]:"int32",typeList[8]:"float64",typeList[9]:"int32"})
-        inderstryDf.to_csv(f"{dstDir}/{str(i+1).zfill(2)}.csv", index=False, encoding=encoding)
+        indurstryDf = indurstryDf.astype({typeList[1]:"int32",typeList[2]:"int32",typeList[3]:"int32",typeList[4]:"int32",typeList[5]:"int32",typeList[6]:"int32",typeList[7]:"int32",typeList[8]:"float64",typeList[9]:"int32"})
+        indurstryDf.to_csv(f"{dstDir}/{str(i+1).zfill(2)}.csv", index=False, encoding=encoding)
 
 # 데이터 부족하면 안합치는 버전으로
 def jobCode_industrialCode(srcDir, dstDir):
@@ -1326,7 +1326,7 @@ def jobCode_industrialCode(srcDir, dstDir):
         else:
             jobCodeDf = jobCode7
 
-        inderstryDf = pd.DataFrame(columns=typeList)
+        indurstryDf = pd.DataFrame(columns=typeList)
         count = 0
         for j in range(len(srcDf.index)):
             if j == 5:
@@ -1359,8 +1359,8 @@ def jobCode_industrialCode(srcDir, dstDir):
                     cl.append(d)
 
                 if(len(cl) < 1):
-                    inderstryDf.loc[count] = srcDf.iloc[j]
-                    inderstryDf["code"][count] = "기타"
+                    indurstryDf.loc[count] = srcDf.iloc[j]
+                    indurstryDf["code"][count] = "기타"
                     continue
                 else:
                     data = cl[0]
@@ -1372,12 +1372,12 @@ def jobCode_industrialCode(srcDir, dstDir):
                 pass
             # print(srcType)
             srcDf.iloc[j]["code"] = srcType
-            inderstryData = inderstryDf[inderstryDf["code"] == srcType]
-            inderstryDf.loc[count] = srcDf.iloc[j]
-            inderstryDf["code"][count] = srcType
+            indurstryData = indurstryDf[indurstryDf["code"] == srcType]
+            indurstryDf.loc[count] = srcDf.iloc[j]
+            indurstryDf["code"][count] = srcType
             count += 1
-        inderstryDf = inderstryDf.astype({typeList[1]:"int32",typeList[2]:"int32",typeList[3]:"int32",typeList[4]:"int32",typeList[5]:"int32"})
-        inderstryDf.to_csv(f"{dstDir}/{str(i+1).zfill(2)}.csv", index=False, encoding=encoding)
+        indurstryDf = indurstryDf.astype({typeList[1]:"int32",typeList[2]:"int32",typeList[3]:"int32",typeList[4]:"int32",typeList[5]:"int32"})
+        indurstryDf.to_csv(f"{dstDir}/{str(i+1).zfill(2)}.csv", index=False, encoding=encoding)
 
 
 

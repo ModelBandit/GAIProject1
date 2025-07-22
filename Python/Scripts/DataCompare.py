@@ -24,7 +24,7 @@ def openAPI_jsonsave(url):
 
     pass
 
-engColumnList = ["inderstryType", 
+engColumnList = ["industryType", 
               "companyCount", "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
               "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
               "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
@@ -74,9 +74,9 @@ def reposHireData(directory):
     fileNames = os.listdir(directory)
     saveDir = r"D:\GAIP\resources\Preprocess\hireByYear"
     
-    InderstryList = ["전체", "A. 농업,임업및어업(01~03)","B. 광업(05~08)","C. 제조업(10~33)","D. 전기,가스,증기및수도사업(35~36)","E. 하수·폐기물처리,원료재생및환경복원업(37~39)","F. 건설업(41~42)","G. 도매및소매업(45~47)","H. 운수업(49~52)","I. 숙박및음식점업(55~56)","J. 출판,영상,방송통신및정보서비스업(58~63)","K. 금융및보험업(64~66)","L. 부동산업및임대업(68~69)","M. 전문,과학및기술서비스업(70~73)","N. 사업시설관리및사업지원서비스업(74~75)","P. 교육서비스업(85)","Q. 보건업및사회복지서비스업(86~87)","R. 예술,스포츠및여가관련서비스업(90~91)","S. 협회및단체,수리및기타개인서비스업(94~96)"]
-    for i in range(len(InderstryList)):
-        InderstryList[i] = erase_etc(InderstryList[i])
+    indurstryList = ["전체", "A. 농업,임업및어업(01~03)","B. 광업(05~08)","C. 제조업(10~33)","D. 전기,가스,증기및수도사업(35~36)","E. 하수·폐기물처리,원료재생및환경복원업(37~39)","F. 건설업(41~42)","G. 도매및소매업(45~47)","H. 운수업(49~52)","I. 숙박및음식점업(55~56)","J. 출판,영상,방송통신및정보서비스업(58~63)","K. 금융및보험업(64~66)","L. 부동산업및임대업(68~69)","M. 전문,과학및기술서비스업(70~73)","N. 사업시설관리및사업지원서비스업(74~75)","P. 교육서비스업(85)","Q. 보건업및사회복지서비스업(86~87)","R. 예술,스포츠및여가관련서비스업(90~91)","S. 협회및단체,수리및기타개인서비스업(94~96)"]
+    for i in range(len(indurstryList)):
+        indurstryList[i] = erase_etc(indurstryList[i])
 
     count = 0
     for f in fileNames:
@@ -93,8 +93,8 @@ def reposHireData(directory):
         for l in range(years):
             newColumList = [ "산업분류", "평균연령", "평균근속년수", "근로일수", "총근로시간수" , "정상근로시간수", "초과근로시간수", "월급여총액", "정액급여", "초과급여", "연간특별급여", "근로자수"]
             df = pd.DataFrame(columns=newColumList)
-            for i in range(len(InderstryList)):
-                indexList = [InderstryList[i]]
+            for i in range(len(indurstryList)):
+                indexList = [indurstryList[i]]
                 for j in range(0, len(newColumList)-1):
                     indexList.append(dataList[i][l*11+j])
                 df.loc[i] = indexList
@@ -107,10 +107,10 @@ def reposHireData(directory):
 
     pass
 
-def reposInderstryData(path, saveDir, columnList, startColumn):
-    InderstryList = ["전체", "농업, 임업 및 어업(01~03)","광업(05~08)","제조업(10~34)","전기, 가스, 증기 및 공기조절 공급업(35)","수도, 하수 및 폐기물 처리, 원료 재생업(36~39)","건설업(41~42)","도매 및 소매업(45~47)","운수 및 창고업(49~52)","숙박 및 음식점업(55~56)","정보통신업(58~63)","금융 및 보험업(64~66)","부동산업(68)","전문, 과학 및 기술 서비스업(70~73)","사업시설 관리, 사업 지원 및 임대 서비스업(74~76)","공공행정, 국방 및 사회보장 행정(84)","교육 서비스업(85)","보건업 및 사회복지 서비스업(86~87)","예술, 스포츠 및 여가관련 서비스업(90~91)","협회 및 단체, 수리 및 기타 개인 서비스업(94~96)"]
-    for i in range(len(InderstryList)):
-        InderstryList[i] = erase_etc(InderstryList[i])
+def reposindurstryData(path, saveDir, columnList, startColumn):
+    indurstryList = ["전체", "농업, 임업 및 어업(01~03)","광업(05~08)","제조업(10~34)","전기, 가스, 증기 및 공기조절 공급업(35)","수도, 하수 및 폐기물 처리, 원료 재생업(36~39)","건설업(41~42)","도매 및 소매업(45~47)","운수 및 창고업(49~52)","숙박 및 음식점업(55~56)","정보통신업(58~63)","금융 및 보험업(64~66)","부동산업(68)","전문, 과학 및 기술 서비스업(70~73)","사업시설 관리, 사업 지원 및 임대 서비스업(74~76)","공공행정, 국방 및 사회보장 행정(84)","교육 서비스업(85)","보건업 및 사회복지 서비스업(86~87)","예술, 스포츠 및 여가관련 서비스업(90~91)","협회 및 단체, 수리 및 기타 개인 서비스업(94~96)"]
+    for i in range(len(indurstryList)):
+        indurstryList[i] = erase_etc(indurstryList[i])
 
     df = pd.read_csv(path, encoding=encoding)
     df = df[df["행정구역별"] == "전국"]
@@ -123,7 +123,7 @@ def reposInderstryData(path, saveDir, columnList, startColumn):
         indexCount = len(df.index)//(len(newColumList)-1)
         newDf = pd.DataFrame(columns=newColumList)
         for l in range(indexCount):
-            newDataList = [InderstryList[l]]
+            newDataList = [indurstryList[l]]
             for j in range(len(columnList)-1):
                 if str(dataList[i][l*(len(columnList)-1)+j]).isdigit() == True:
                     # print(str(dataList[i][l*3+j]))
@@ -144,23 +144,23 @@ def reposInderstryData(path, saveDir, columnList, startColumn):
 # directory = r"D:\GAIP\resources\Preprocess\hire"
 # reposHireData(directory)
 
-# path = r"resources\Preprocess\inderstry\시도산업대표자성별.csv"
-# saveDir = r"D:\GAIP\resources\Preprocess\inderstry\CEOFM"
+# path = r"resources\Preprocess\indurstry\시도산업대표자성별.csv"
+# saveDir = r"D:\GAIP\resources\Preprocess\indurstry\CEOFM"
 # columnList = ["산업분류", "사업체수", "남대표", "여대표"]
-# reposInderstryData(path, saveDir, columnList, 3)
+# reposindurstryData(path, saveDir, columnList, 3)
 
-# path = r"resources\Preprocess\inderstry\시도산업사업체구분별.csv"
-# saveDir = r"D:\GAIP\resources\Preprocess\inderstry\CompanyType"
+# path = r"resources\Preprocess\indurstry\시도산업사업체구분별.csv"
+# saveDir = r"D:\GAIP\resources\Preprocess\indurstry\CompanyType"
 # columnList = ["산업분류", "사업체수", "종사자수", "단독사업체사업체", "단독사업체종사자", "본사본점등사업체", "본사본점등종사자", "공장지사영업소사업체", "공장지사영업소종사자"]
-# reposInderstryData(path, saveDir, columnList, 5)
+# reposindurstryData(path, saveDir, columnList, 5)
 
-# path = r"resources\Preprocess\inderstry\시도산업종사상지위별.csv"
-# saveDir = r"D:\GAIP\resources\Preprocess\inderstry\WorkerType"
+# path = r"resources\Preprocess\indurstry\시도산업종사상지위별.csv"
+# saveDir = r"D:\GAIP\resources\Preprocess\indurstry\WorkerType"
 # columnList = ["산업분류", "종사자수", "자영업자무급가족", "상용종사자", "일용근로자", "기타종사자"]
-# reposInderstryData(path, saveDir, columnList, 5)
+# reposindurstryData(path, saveDir, columnList, 5)
 
-# path = r"resources\Preprocess\inderstry\시도산업종사자규모.csv"
-# saveDir = r"D:\GAIP\resources\Preprocess\inderstry\WorkerSize"
+# path = r"resources\Preprocess\indurstry\시도산업종사자규모.csv"
+# saveDir = r"D:\GAIP\resources\Preprocess\indurstry\WorkerSize"
 # columnList = ["산업분류", 
 #               "사업체수", "종사자수", 
 #               "1명이상5명미만사업체", 
@@ -182,12 +182,12 @@ def reposInderstryData(path, saveDir, columnList, startColumn):
 #               "1000명이상사업체",
 #               "1000명이상종사자"
 #               ]
-# reposInderstryData(path, saveDir, columnList, 5)
+# reposindurstryData(path, saveDir, columnList, 5)
 
-# path = r"resources\Preprocess\inderstry\시도산업종사자성별.csv"
-# saveDir = r"D:\GAIP\resources\Preprocess\inderstry\WorkerFM"
+# path = r"resources\Preprocess\indurstry\시도산업종사자성별.csv"
+# saveDir = r"D:\GAIP\resources\Preprocess\indurstry\WorkerFM"
 # columnList = ["산업분류", "종사자합", "종사자남", "종사자여"]
-# reposInderstryData(path, saveDir, columnList, 3)
+# reposindurstryData(path, saveDir, columnList, 3)
 
 
 def keyCodeConvert(keyCode):
@@ -469,7 +469,7 @@ def hireDataConvertCode(directory, saveDir):
 
         df.to_csv(f"{saveDir}/{2009+i}.csv", index=False, encoding=encoding)
 
-def convertInderstryRate(directory, saveDir):
+def convertindurstryRate(directory, saveDir):
     fileNames = os.listdir(directory)
 
     for i in range(len(fileNames)):
@@ -520,7 +520,7 @@ korColumnList = [
     "평균연령","평균근속년수","근로일수","총근로시간수","정상근로시간수","초과근로시간수","월급여총액","정액급여","초과급여","연간특별급여"
 ]
 korToEng = {
-    "산업분류": "inderstryType",
+    "산업분류": "industryType",
     "사업체수": "companyCount",
     "남대표": "ownerMaleRate",
     "여대표": "ownerFemaleRate",
@@ -560,7 +560,7 @@ korToEng = {
     "초과급여": "avgOvertimeSalary",
     "연간특별급여": "avgBonusSalary"
 }
-def mergeInderstryAndHire(dirList, saveDir):
+def mergeindurstryAndHire(dirList, saveDir):
     fileNames = os.listdir(dirList[0])
     # 파일 갯수
     for i in range(len(fileNames)):
@@ -582,29 +582,29 @@ def mergeInderstryAndHire(dirList, saveDir):
         dfList[0].to_csv(f"{saveDir}/{2009+i}.csv", index=False, encoding=encoding)
 
 # dirList = [
-#     r"resources\Preprocess\inderstry\CEOFM",
-#     r"resources\Preprocess\inderstry\WorkerFM",
-#     r"resources\Preprocess\inderstry\CompanyType",
-#     r"resources\Preprocess\inderstry\WorkerType",
-#     r"resources\Preprocess\inderstry\WorkerSize",
+#     r"resources\Preprocess\indurstry\CEOFM",
+#     r"resources\Preprocess\indurstry\WorkerFM",
+#     r"resources\Preprocess\indurstry\CompanyType",
+#     r"resources\Preprocess\indurstry\WorkerType",
+#     r"resources\Preprocess\indurstry\WorkerSize",
 # ]
-# saveDir = r"D:\GAIP\resources\Preprocess\inderstry\total"
+# saveDir = r"D:\GAIP\resources\Preprocess\indurstry\total"
 # mergeCSVData1(dirList, saveDir)
 
-# directory = r"D:\GAIP\resources\Preprocess\inderstry\total"
-# saveDir = r"D:\GAIP\resources\Preprocess\inderstry\convertCode"
+# directory = r"D:\GAIP\resources\Preprocess\indurstry\total"
+# saveDir = r"D:\GAIP\resources\Preprocess\indurstry\convertCode"
 # mergeCSVDataConvertCode(directory, saveDir)
 
 # directory = r"resources\Preprocess\hireByYear"
 # saveDir = r"resources\Preprocess\hireYearConvert"
 # hireDataConvertCode(directory, saveDir)
 
-# directory = r"resources\Preprocess\inderstry\convertCode"
+# directory = r"resources\Preprocess\indurstry\convertCode"
 # numCountChecker(directory)
 
-# directory = r"resources\Preprocess\inderstry\convertCode"
-# saveDir = r"resources\Preprocess\inderstry\rate"
-# convertInderstryRate(directory, saveDir)
+# directory = r"resources\Preprocess\indurstry\convertCode"
+# saveDir = r"resources\Preprocess\indurstry\rate"
+# convertindurstryRate(directory, saveDir)
 # "avgServYear","avgWorkDay","avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"] 
 
 
@@ -690,7 +690,7 @@ def predictValueRate(predictDir, saveDir):
                         df[column][i] = -0.0001
                     else:
                         df[column][i] = round((df[column][i+1] - df[column][i]) / df[column][i]*100, 4)
-        df = df.drop(labels=10, axis=0)
+        df = df.drop(labels=20, axis=0)
 
         df.to_csv(f"{saveDir}/{n}", index=False, encoding=encoding)
     pass
@@ -699,15 +699,15 @@ def predictValueRate(predictDir, saveDir):
 
 if __name__ == "__main__":
     # dirList = [
-    #     r"resources\Preprocess\inderstry\rate",
+    #     r"resources\Preprocess\indurstry\rate",
     #     r"resources\Preprocess\hireYearConvert",
     # ]
     # saveDir = r"resources\dev02\data"
-    # mergeInderstryAndHire(dirList, saveDir)
+    # mergeindurstryAndHire(dirList, saveDir)
 
     # # 대표자성별, 종사자성별, 사업체구분 사업체/종사자, 종사자구분 종사자, 종사자규모구분 사업체/종사자, 산업평균
     # # -> 사업체 수, 사업체 대표자 성별 비율, 사업체 사업체 구분 비율, 사업체 종사자규모 구분 비율, 
-    # engColumnList = ["inderstryType", 
+    # engColumnList = ["industryType", 
     #             "companyCount", "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
     #             "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
     #             "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",

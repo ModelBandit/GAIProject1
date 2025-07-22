@@ -25,7 +25,7 @@ trainTargetDir = "resources/dev02/trainData/targetData"
 testInputDir = "resources/dev02/testData/inputData"
 testTargetDir = "resources/dev02/testData/targetData"
 encoding = "utf-8"
-engColumnList = ["inderstryType", 
+engColumnList = ["industryType", 
               "companyCount", "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
               "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
               "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
@@ -38,13 +38,13 @@ engColumnList = ["inderstryType",
 # columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count"]
 columnList = [
               "companyCount", 
-              "ownerMaleRate",#"ownerFemaleRate",
-              "singlePropCompanyRate", #"multiBusinessCompanyRate",
+              "ownerMaleRate","ownerFemaleRate",
+              "singlePropCompanyRate", "multiBusinessCompanyRate",
               "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
               "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
               "workerCount", 
-              "workerMaleRate", #"workerFemaleRate",
-              "singlePropWorkerRate", #"multiBusinessWorkerRate",
+              "workerMaleRate", "workerFemaleRate",
+              "singlePropWorkerRate", "multiBusinessWorkerRate",
               "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
               "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
               "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
@@ -101,15 +101,15 @@ def testML():
     # testInput = loadAllData(inputDataDir, columnList)#.values
     # testTarget = loadAllData(targetDataDir, targetColumnList)#.values
 
-    # inputDataDir = r"resources\dev02\data"
-    # inputDf = loadAllData(inputDataDir, engColumnList)
-    # targetDataDir = r"resources\dev02\target"
-    # targetDf = loadAllData(targetDataDir, engColumnList)
+    inputDataDir = r"resources\dev02\data"
+    inputDf = loadAllData(inputDataDir, engColumnList)
+    targetDataDir = r"resources\dev02\target"
+    targetDf = loadAllData(targetDataDir, engColumnList)
 
-    # inputDf = inputDf[inputDf["inderstryType"] == customKeyCodeList[0]]
-    # targetDf = targetDf[targetDf["inderstryType"] == customKeyCodeList[0]]
-    # inputDf = inputDf[columnList]
-    # targetDf = targetDf[columnList]
+    # inputDf = inputDf[inputDf["industryType"] == customKeyCodeList[0]]
+    # targetDf = targetDf[targetDf["industryType"] == customKeyCodeList[0]]
+    inputDf = inputDf[columnList]
+    targetDf = targetDf[columnList]
 
     # for i in range(len(columnList)):
     #     for j in range(len(columnList)):
@@ -128,7 +128,7 @@ def testML():
     # plt.show()
 
 
-    # trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
+    trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
     # trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int  , columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # trainTarget = trainTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
@@ -145,7 +145,7 @@ def testML():
 
 
 
-    lML = LinearML()
+    lML = LinearML(trainInput, trainTarget, testInput, testTarget)
 
     
     # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget)
@@ -208,14 +208,14 @@ def LinearMLAIO():
         dataList = []
         otherDf = pd.DataFrame(columns=columnList)
         otherDf.loc[0] = data[0]
-        for i in range(10):
+        for i in range(20):
             data = lr.predict(data)
             otherDf.loc[i+1] = data[0]
             # df.insert(1, engColumnList[0], customKeyCodeList)
             # df = df[engColumnList]
         newColumns = copy.deepcopy(columnList)
         newColumns.insert(0, "year")
-        otherDf["year"] = [*range(2019, 2030)]
+        otherDf["year"] = [*range(2020, 2041)]
         otherDf = otherDf[newColumns]
         predictDir = f"resources/predict/"
         if os.path.exists(predictDir) == False:
@@ -241,19 +241,6 @@ def LinearML(trainInput, trainTarget, testInput, testTarget):
         # positive=False          # True로 설정하면 회귀 계수를 음수가 아닌 값으로 강제함 (비음수 회귀)
     )
     lr.fit(trainInput, trainTarget)
-
-    path = r"resources\dev02\data\2019.csv"
-    df = pd.read_csv(path, encoding=encoding)
-    df = df[df[engColumnList[0]] == customKeyCodeList[0]]
-    data = df[columnList].values
-    for i in range(5):
-        data = lr.predict(data)
-    
-        df = pd.DataFrame(data, columns=columnList)
-        # df.insert(1, engColumnList[0], customKeyCodeList)
-        # df = df[engColumnList]
-        predictDir = r"resources\compare\predict"
-        df.to_csv(f"{predictDir}/{i}.csv", index=False, encoding="utf-8-sig")
 
     scoreList = [lr.score(trainInput, trainTarget), lr.score(testInput, testTarget)]
     
