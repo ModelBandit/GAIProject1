@@ -197,7 +197,7 @@ class ConnectDB:
         pass
 
     def ImportRealDataToOracle(self):
-        commonColumnList = ["year", "id"] 
+        commonColumnList = ["id", "year", "industryType"] 
         companyAndWorkerCount = ["industryType", "companyCount", "workerCount"]
         companyDetail = ["industryType",
             "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
@@ -318,9 +318,10 @@ class ConnectDB:
         self.sql_off()
         pass
 
-db = ConnectDB()
-db.ImportPredictDataToOracle()
-db.ImportRealDataToOracle()
+if __name__ == "__main__":
+    db = ConnectDB()
+    db.ImportPredictDataToOracle()
+    db.ImportRealDataToOracle()
 
 
 
