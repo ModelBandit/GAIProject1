@@ -38,21 +38,44 @@ engColumnList = ["industryType",
 # columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count"]
 columnList = [
               "companyCount", 
-              "ownerMaleRate","ownerFemaleRate",
+              "ownerMaleRate", "ownerFemaleRate",
               "singlePropCompanyRate", "multiBusinessCompanyRate",
               "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
-              "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
+              "U50D100CompanyRate", "U100D300CompanyRate",# "U300CompanyRate",
               "workerCount", 
               "workerMaleRate", "workerFemaleRate",
               "singlePropWorkerRate", "multiBusinessWorkerRate",
               "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
               "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
-              "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
+              "U50D100WorkerRate", "U100D300WorkerRate",# "U300WorkerRate",
               "avgAge",
               "avgServYear","avgWorkDay",
-              "avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
+              "avgTotalWorkTime",
+              "avgRegularWorkDay",
+              "avgOverWorkDay",
+              "avgSalary",
+              "avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
             ]
-# targetColumnList = ["companyCount", "workerCount"] # "companyCount",
+targetColumnList = ["companyCount", "workerCount"] # "companyCount",
+
+countTalbe = [
+    "companyCount", "workerCount",
+]
+companyRateTalbe = [
+    "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
+    "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+    "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
+]
+WorkerRateTalbe = [
+    "workerMaleRate", "workerFemaleRate", "singlePropWorkerRate", "multiBusinessWorkerRate", 
+    "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
+    "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+    "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
+]
+avgTalbe = [
+    "avgAge","avgServYear","avgWorkDay","avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
+]
+
 
 customKeyCodeList =[ 
 "전체",
@@ -103,13 +126,13 @@ def testML():
 
     inputDataDir = r"resources\dev02\data"
     inputDf = loadAllData(inputDataDir, engColumnList)
-    targetDataDir = r"resources\dev02\target"
-    targetDf = loadAllData(targetDataDir, engColumnList)
+    # targetDataDir = r"resources\dev02\target"
+    # targetDf = loadAllData(targetDataDir, engColumnList)
 
-    # inputDf = inputDf[inputDf["industryType"] == customKeyCodeList[0]]
+    inputDf = inputDf[inputDf["industryType"] == customKeyCodeList[4]]
     # targetDf = targetDf[targetDf["industryType"] == customKeyCodeList[0]]
     inputDf = inputDf[columnList]
-    targetDf = targetDf[columnList]
+    # targetDf = targetDf[targetColumnList]
 
     # for i in range(len(columnList)):
     #     for j in range(len(columnList)):
@@ -122,30 +145,31 @@ def testML():
 
 
     # corr_matrix = pd.DataFrame(inputDf, columns=inputDf.columns).corr()
-    # plt.figure(figsize=(200,200))
+    # plt.figure(figsize=(100,100))
     # sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
     # plt.title("Feature Correlation Matrix")
     # plt.show()
 
 
-    trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
+    # trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
     # trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int  , columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # trainTarget = trainTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
     # testTarget = testTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
 
-    # df_corr = trainInput.copy()
-    # df_corr['target'] = trainTarget[targetColumnList[1]]
+    for target in targetColumnList:
+        df_corr = inputDf.copy()
+        df_corr['target'] = inputDf[target]
 
-    # target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
-    # print(target_corr)
+        target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
+        print(target_corr)
 
     # trainTarget = trainTarget[targetColumnList[0]].values.ravel()
     # testTarget = testTarget[targetColumnList[0]].values.ravel()
 
 
 
-    lML = LinearML(trainInput, trainTarget, testInput, testTarget)
+    # lML = LinearML(trainInput, trainTarget, testInput, testTarget)
 
     
     # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget)
@@ -247,6 +271,16 @@ def LinearML(trainInput, trainTarget, testInput, testTarget):
     print(scoreList[0])
     print(scoreList[1])
 
+    path = r"resources\dev02\target\2019.csv"
+    df = pd.read_csv(path, encoding=encoding)
+    # df = df[df["industryType"] == customKeyCodeList[0]]
+    df = df[columnList]
+
+    asd = lr.predict(df.values)
+
+    dd = pd.DataFrame(asd, columns=targetColumnList)
+    dd.to_csv("./asd.csv", index=False, encoding="utf-8-sig")
+    
     return scoreList
     
 
@@ -266,6 +300,7 @@ def DecisionTreeML(trainInput, trainTarget, testInput, testTarget):
     
     print(scoreList[0])
     print(scoreList[1])
+
 
 
     # plt.figure(figsize=(10,7))
@@ -676,5 +711,5 @@ def DaskLGBMRegressor_ML(trainInput, trainTarget, testInput, testTarget):
     return scoreList
 
 if __name__ == "__main__":
-    # testML()
-    LinearMLAIO()
+    testML()
+    # LinearMLAIO()

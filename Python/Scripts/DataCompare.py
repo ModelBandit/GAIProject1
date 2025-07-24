@@ -699,7 +699,7 @@ def predictValueRate(predictDir, saveDir):
 
 if __name__ == "__main__":
     # dirList = [
-    #     r"resources\Preprocess\indurstry\rate",
+    #     r"resources\Preprocess\indurstry\convertCode",
     #     r"resources\Preprocess\hireYearConvert",
     # ]
     # saveDir = r"resources\dev02\data"
@@ -725,7 +725,7 @@ if __name__ == "__main__":
     # realDir = r"resources\compare\real"
     # CompareErrorValues(realDir, predictDir)
     
-    predictDir = r"resources\predict"
-    saveDir = r"resources\predictRate"
-    predictValueRate(predictDir, saveDir)
+    # predictDir = r"resources\predict"
+    # saveDir = r"resources\predictRate"
+    # predictValueRate(predictDir, saveDir)
     pass
