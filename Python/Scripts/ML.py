@@ -38,22 +38,22 @@ engColumnList = ["industryType",
 # columnList = ["maleCount","femaleCount","ageLt40Count","ageGte40Count"]
 columnList = [
               "companyCount", 
-              "ownerMaleRate", "ownerFemaleRate",
-              "singlePropCompanyRate", "multiBusinessCompanyRate",
+              "ownerMaleRate", #"ownerFemaleRate",
+              "singlePropCompanyRate", #"multiBusinessCompanyRate",
               "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
-              "U50D100CompanyRate", "U100D300CompanyRate",# "U300CompanyRate",
+              "U50D100CompanyRate", #"U100D300CompanyRate",# "U300CompanyRate",
               "workerCount", 
-              "workerMaleRate", "workerFemaleRate",
-              "singlePropWorkerRate", "multiBusinessWorkerRate",
-              "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate", "etcWorkerRate",
+              "workerMaleRate",# "workerFemaleRate",
+              "singlePropWorkerRate",# "multiBusinessWorkerRate",
+              "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate",# "etcWorkerRate",
               "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
-              "U50D100WorkerRate", "U100D300WorkerRate",# "U300WorkerRate",
+              "U50D100WorkerRate",# "U100D300WorkerRate",# "U300WorkerRate",
               "avgAge",
               "avgServYear","avgWorkDay",
-              "avgTotalWorkTime",
+              #"avgTotalWorkTime",
               "avgRegularWorkDay",
               "avgOverWorkDay",
-              "avgSalary",
+              #"avgSalary",
               "avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
             ]
 targetColumnList = ["companyCount", "workerCount"] # "companyCount",
@@ -98,7 +98,6 @@ customKeyCodeList =[
 "기타공공수리및개인서비스업",
 
 ]
-
 def loadAllData(directory, columnList):
     fileNames = os.listdir(directory)
 
@@ -123,46 +122,48 @@ def testML():
 
     # testInput = loadAllData(inputDataDir, columnList)#.values
     # testTarget = loadAllData(targetDataDir, targetColumnList)#.values
+    for i in range(1, 17):
+        inputDataDir = r"resources\dev02\비율2회분할\data"
+        inputDf = loadAllData(inputDataDir, engColumnList)
+        targetDataDir = r"resources\dev02\비율2회분할\target"
+        targetDf = loadAllData(targetDataDir, engColumnList)
 
-    inputDataDir = r"resources\dev02\data"
-    inputDf = loadAllData(inputDataDir, engColumnList)
-    # targetDataDir = r"resources\dev02\target"
-    # targetDf = loadAllData(targetDataDir, engColumnList)
+        cl = customKeyCodeList[i]
+        inputDf = inputDf[inputDf["industryType"] == cl]
+        targetDf = targetDf[targetDf["industryType"] == cl]
+        inputDf = inputDf[columnList]
+        targetDf = targetDf[columnList]
 
-    inputDf = inputDf[inputDf["industryType"] == customKeyCodeList[4]]
-    # targetDf = targetDf[targetDf["industryType"] == customKeyCodeList[0]]
-    inputDf = inputDf[columnList]
-    # targetDf = targetDf[targetColumnList]
+        # for i in range(len(columnList)):
+        #     for j in range(len(columnList)):
+        #         cov = inputDf[[columnList[i], columnList[j]]].cov()
+        #         print(f"{columnList[i]} \n{columnList[j]} \n{cov}")
 
-    # for i in range(len(columnList)):
-    #     for j in range(len(columnList)):
-    #         cov = inputDf[[columnList[i], columnList[j]]].cov()
-    #         print(f"{columnList[i]} \n{columnList[j]} \n{cov}")
-
-    # 섞으려고 추가함
-    # inputDf = pd.concat([trainInput, testInput])
-    # targetDf = pd.concat([trainTarget, testTarget])
-
-
-    # corr_matrix = pd.DataFrame(inputDf, columns=inputDf.columns).corr()
-    # plt.figure(figsize=(100,100))
-    # sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
-    # plt.title("Feature Correlation Matrix")
-    # plt.show()
+        # 섞으려고 추가함
+        # inputDf = pd.concat([trainInput, testInput])
+        # targetDf = pd.concat([trainTarget, testTarget])
 
 
-    # trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
+        # corr_matrix = pd.DataFrame(inputDf, columns=inputDf.columns).corr()
+        # plt.figure(figsize=(100,100))
+        # sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
+        # plt.title("Feature Correlation Matrix")
+        # plt.show()
+
+        # for i in range(10):
+        trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2)
+        PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl)
     # trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int  , columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # trainTarget = trainTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
     # testTarget = testTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
 
-    for target in targetColumnList:
-        df_corr = inputDf.copy()
-        df_corr['target'] = inputDf[target]
+    # for target in targetColumnList:
+    #     df_corr = inputDf.copy()
+    #     df_corr['target'] = inputDf[target]
 
-        target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
-        print(target_corr)
+    #     target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
+    #     print(target_corr)
 
     # trainTarget = trainTarget[targetColumnList[0]].values.ravel()
     # testTarget = testTarget[targetColumnList[0]].values.ravel()
@@ -208,9 +209,9 @@ def testML():
     
 def LinearMLAIO():
     print("LinearMLAIO")
-    inputDataDir = r"resources\dev02\data"
+    inputDataDir = r"resources\dev02\비율2회분할\data"
     inputDf = loadAllData(inputDataDir, columnList)
-    targetDataDir = r"resources\dev02\target"
+    targetDataDir = r"resources\dev02\비율2회분할\target"
     targetDf = loadAllData(targetDataDir, columnList)
     trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
     
@@ -271,15 +272,14 @@ def LinearML(trainInput, trainTarget, testInput, testTarget):
     print(scoreList[0])
     print(scoreList[1])
 
-    path = r"resources\dev02\target\2019.csv"
-    df = pd.read_csv(path, encoding=encoding)
-    # df = df[df["industryType"] == customKeyCodeList[0]]
-    df = df[columnList]
+    # path = r"D:\myproject\GAIProject1\resources\dev02\비율2회분할\2019.csv"
+    # df = pd.read_csv(path, encoding=encoding)
+    # # df = df[df["industryType"] == customKeyCodeList[0]]
+    # df = df[columnList]
+    # asd = lr.predict(df.values)
 
-    asd = lr.predict(df.values)
-
-    dd = pd.DataFrame(asd, columns=targetColumnList)
-    dd.to_csv("./asd.csv", index=False, encoding="utf-8-sig")
+    # dd = pd.DataFrame(asd, columns=targetColumnList)
+    # dd.to_csv("./asd.csv", index=False, encoding="utf-8-sig")
     
     return scoreList
     
@@ -313,12 +313,12 @@ def DecisionTreeML(trainInput, trainTarget, testInput, testTarget):
     # df = df.astype({columnList[0]:"int32",columnList[1]:"int32",columnList[2]:"int32",columnList[3]:"int32",columnList[4]:"int32",columnList[5]:"int32",columnList[6]:"int32",columnList[7]:"float64"})
     # print(df)
 
-def PolynomialLinearML(trainInput, trainTarget, testInput, testTarget):
+def PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl):
 
     # print(trainInput.shape)
     # print(trainTarget.shape)
     print("PolynomialLinearML")
-    lr = make_pipeline(PolynomialFeatures(degree=2, include_bias=False), LinearRegression())
+    lr = make_pipeline(PolynomialFeatures(degree=1, include_bias=False), Ridge(alpha=0.001))
     lr.fit(trainInput, trainTarget)
 
     # train
@@ -326,6 +326,17 @@ def PolynomialLinearML(trainInput, trainTarget, testInput, testTarget):
 
     # test
     print(lr.score(testInput, testTarget))
+    
+    path = r"D:\myproject\GAIProject1\resources\dev02\비율2회분할\target\2019.csv"
+    if os.path.exists(f"{cl}") == False:
+        os.mkdir(f"{cl}")
+    df = pd.read_csv(path, encoding=encoding)
+    df = df[df["industryType"] == cl]
+    df = df[columnList]
+    for i in range(20):
+        df = lr.predict(df.values)
+        df = pd.DataFrame(df, columns=columnList)
+        df.to_csv(f"{cl}/{2021+i}.csv", index=False, encoding="utf-8-sig")
     
 
     # df = pd.DataFrame(lr.predict(testInput), columns=columnList)
@@ -352,11 +363,11 @@ def LassoML(trainInput, trainTarget, testInput, testTarget):
     print("LassoML")
     
     alpha = 1
-    # alphaList = [0.001,0.01,0.1,1,10,100]
-    # for alpha in alphaList:
-    print(f"LassoML - alpha: {alpha}")
-    lasso = make_pipeline(StandardScaler(), Lasso(alpha=alpha))
-    lasso.fit(trainInput, trainTarget)
+    alphaList = [0.001,0.01,0.1,1,10,100]
+    for alpha in alphaList:
+        print(f"LassoML - alpha: {alpha}")
+        lasso = make_pipeline(StandardScaler(), Lasso(alpha=alpha))
+        lasso.fit(trainInput, trainTarget)
 
     # feature_names = trainInput.columns  # 열 이름 가져오기
     # coefficients = lasso.named_steps["lasso"].coef_[0]
@@ -370,11 +381,11 @@ def LassoML(trainInput, trainTarget, testInput, testTarget):
     # coef_df = coef_df.sort_values(by="Coefficient", key=abs, ascending=False)
 
     # print(coef_df)
-    # train
-    print(lasso.score(trainInput, trainTarget))
+        # train
+        print(lasso.score(trainInput, trainTarget))
 
-    # test
-    print(lasso.score(testInput, testTarget))
+        # test
+        print(lasso.score(testInput, testTarget))
     
 est = 300
 mDepth = 15

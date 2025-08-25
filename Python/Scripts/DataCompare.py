@@ -622,7 +622,7 @@ def dataSliceAugmentation(inputDir):
 
         newDf = pd.DataFrame(columns=df.columns)
         count = 0
-        for j in range(len(df.index)):
+        for j in range(len(df.index)-1, 1, -1):
             index = df.iloc[j]
 
             columnString = str(index[columnList[0]])
@@ -645,7 +645,7 @@ def dataSliceAugmentation(inputDir):
             newDf.loc[count] = dataList
             count += 1
         
-        num = 2
+        num = 6
         savePath = f"{inputDir}/{inputNames[i]}_{num}"   
         while(os.path.exists(savePath)):
             num -= 1
@@ -716,10 +716,10 @@ if __name__ == "__main__":
     #             "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
     #             "U50D100WorkerRate", "U100D300WorkerRate", "U300WorkerRate",
     #             "avgAge",
-    # inputDir = r"resources\dev02\data"
-    # dataSliceAugmentation(inputDir)
-    # inputDir = r"resources\dev02\target"
-    # dataSliceAugmentation(inputDir)
+    inputDir = r"resources\dev02\data"
+    dataSliceAugmentation(inputDir)
+    inputDir = r"resources\dev02\target"
+    dataSliceAugmentation(inputDir)
 
     # predictDir = r"resources\compare\predict"
     # realDir = r"resources\compare\real"

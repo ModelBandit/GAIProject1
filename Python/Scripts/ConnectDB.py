@@ -4,6 +4,7 @@ import pandas as pd
 
 projectRoot = "." # D:/GAIP
 trainInputDir = r"resources\predictRate"
+lib_Dir = "C:/instantclient-basic-windows.x64-19.27.0.0.0dbru/instantclient_19_27" # instant clinet 받아서 풀어놓고 처리해야 함.
 encoding = "utf-8"
 columnList = ["companyCount", "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
               "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
@@ -53,7 +54,7 @@ def getAllDataList(dataDir):
 
 class ConnectDB:
     def sql_on(self):
-        self.lib_Dir = "C:/instantclient-basic-windows.x64-19.27.0.0.0dbru/instantclient_19_27" # instant clinet 받아서 풀어놓고 처리해야 함.
+        self.lib_Dir = lib_Dir # instant clinet 받아서 풀어놓고 처리해야 함.
         cx_Oracle.init_oracle_client(lib_dir=self.lib_Dir)
 
         dsn = cx_Oracle.makedsn("localhost", 1521, sid="xe")
