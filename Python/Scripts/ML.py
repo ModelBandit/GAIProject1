@@ -25,7 +25,7 @@ trainTargetDir = "resources/dev02/trainData/targetData"
 testInputDir = "resources/dev02/testData/inputData"
 testTargetDir = "resources/dev02/testData/targetData"
 encoding = "utf-8"
-engColumnList = ["industryType", 
+engColumnList = ["industryType", "yearData",
               "companyCount", "ownerMaleRate","ownerFemaleRate", "singlePropCompanyRate", "multiBusinessCompanyRate", 
               "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
               "U50D100CompanyRate", "U100D300CompanyRate", "U300CompanyRate",
@@ -39,23 +39,46 @@ engColumnList = ["industryType",
 columnList = [
               "companyCount", 
               "ownerMaleRate", #"ownerFemaleRate",
-              "singlePropCompanyRate", #"multiBusinessCompanyRate",
+            #   "singlePropCompanyRate", #"multiBusinessCompanyRate",
               "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
               "U50D100CompanyRate", #"U100D300CompanyRate",# "U300CompanyRate",
               "workerCount", 
               "workerMaleRate",# "workerFemaleRate",
-              "singlePropWorkerRate",# "multiBusinessWorkerRate",
-              "selfEmpFamilyWorkerRate", "fulltimeWorkerRate", "dayWorkerRate",# "etcWorkerRate",
+            #   "singlePropWorkerRate",# "multiBusinessWorkerRate",
+            #   "selfEmpFamilyWorkerRate", 
+              "fulltimeWorkerRate", "dayWorkerRate",# "etcWorkerRate",
               "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
               "U50D100WorkerRate",# "U100D300WorkerRate",# "U300WorkerRate",
-              "avgAge",
-              "avgServYear","avgWorkDay",
+            #   "avgAge",
+            #   "avgServYear","avgWorkDay",
               #"avgTotalWorkTime",
-              "avgRegularWorkDay",
+            #   "avgRegularWorkDay",
               "avgOverWorkDay",
-              #"avgSalary",
-              "avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
+              "avgSalary",
+            #   "avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
             ]
+columnListyear = ["yearData",
+              "companyCount", 
+              "ownerMaleRate", #"ownerFemaleRate",
+            #   "singlePropCompanyRate", #"multiBusinessCompanyRate",
+              "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+              "U50D100CompanyRate", #"U100D300CompanyRate",# "U300CompanyRate",
+              "workerCount", 
+              "workerMaleRate",# "workerFemaleRate",
+            #   "singlePropWorkerRate",# "multiBusinessWorkerRate",
+            #   "selfEmpFamilyWorkerRate", 
+              "fulltimeWorkerRate", "dayWorkerRate",# "etcWorkerRate",
+              "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+              "U50D100WorkerRate",# "U100D300WorkerRate",# "U300WorkerRate",
+            #   "avgAge",
+            #   "avgServYear","avgWorkDay",
+              #"avgTotalWorkTime",
+            #   "avgRegularWorkDay",
+              "avgOverWorkDay",
+              "avgSalary",
+            #   "avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
+            ]
+
 targetColumnList = ["companyCount", "workerCount"] # "companyCount",
 
 countTalbe = [
@@ -109,6 +132,17 @@ def loadAllData(directory, columnList):
         df = pd.concat([df, newDf])
     return df
 
+def loadAllDataa(directory, columnList, s=0):
+    fileNames = os.listdir(directory)
+
+    df = pd.DataFrame(columns=columnList)
+    for i in range(s,len(fileNames)):
+        path = f"{directory}/{fileNames}"
+        newDf = pd.read_csv(path, encoding=encoding)[columnList]
+
+        df = pd.concat([df, newDf])
+    return df
+    
 def testML():
     # 나눠진 경우
     # inputDataDir = f"{projectRoot}/{trainInputDir}"
@@ -122,17 +156,20 @@ def testML():
 
     # testInput = loadAllData(inputDataDir, columnList)#.values
     # testTarget = loadAllData(targetDataDir, targetColumnList)#.values
+    plt.rcParams['font.family'] ='Malgun Gothic'
+    plt.rcParams['axes.unicode_minus'] =False
     for i in range(1, 17):
         inputDataDir = r"resources\dev02\비율2회분할\data"
         inputDf = loadAllData(inputDataDir, engColumnList)
-        targetDataDir = r"resources\dev02\비율2회분할\target"
-        targetDf = loadAllData(targetDataDir, engColumnList)
+        # targetDataDir = r"resources\dev02\비율2회분할\target"
+        # targetDf = loadAllData(targetDataDir, engColumnList)
 
         cl = customKeyCodeList[i]
         inputDf = inputDf[inputDf["industryType"] == cl]
-        targetDf = targetDf[targetDf["industryType"] == cl]
-        inputDf = inputDf[columnList]
-        targetDf = targetDf[columnList]
+        # targetDf = targetDf[targetDf["industryType"] == cl]
+        inputDf = inputDf[columnListyear]
+        # targetDf = targetDf[columnListyear]
+        # PolynomialLinearML(inputDf, targetDf, inputDf, targetDf, cl)
 
         # for i in range(len(columnList)):
         #     for j in range(len(columnList)):
@@ -147,12 +184,12 @@ def testML():
         # corr_matrix = pd.DataFrame(inputDf, columns=inputDf.columns).corr()
         # plt.figure(figsize=(100,100))
         # sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
-        # plt.title("Feature Correlation Matrix")
+        # plt.title(f"{cl} Feature Correlation Matrix")
         # plt.show()
 
         # for i in range(10):
-        trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2)
-        PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl)
+        # trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
+        # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl)
     # trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int  , columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # trainTarget = trainTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
@@ -170,12 +207,12 @@ def testML():
 
 
 
-    # lML = LinearML(trainInput, trainTarget, testInput, testTarget)
+        # lML = LinearML(trainInput, trainTarget, testInput, testTarget)
 
-    
-    # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget)
-    # RidgeML(trainInput, trainTarget, testInput, testTarget)
-    # LassoML(trainInput, trainTarget, testInput, testTarget)
+        
+        # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget)
+        # RidgeML(trainInput, trainTarget, testInput, testTarget)
+        # LassoML(trainInput, trainTarget, testInput, testTarget)
     
     
 
@@ -313,12 +350,21 @@ def DecisionTreeML(trainInput, trainTarget, testInput, testTarget):
     # df = df.astype({columnList[0]:"int32",columnList[1]:"int32",columnList[2]:"int32",columnList[3]:"int32",columnList[4]:"int32",columnList[5]:"int32",columnList[6]:"int32",columnList[7]:"float64"})
     # print(df)
 
+from sklearn.linear_model import ElasticNet
 def PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl):
 
     # print(trainInput.shape)
     # print(trainTarget.shape)
-    print("PolynomialLinearML")
-    lr = make_pipeline(PolynomialFeatures(degree=1, include_bias=False), Ridge(alpha=0.001))
+    # lr = make_pipeline(StandardScaler(), LinearRegression())
+    # print("PolynomialLinearML")
+
+    # alphaList = [0.001,0.01,0.1,1,10,100]
+    # for alpha in alphaList:
+    alpha = 0.001
+    print(f"RidgeML - alpha: {alpha}")
+    lr = make_pipeline(PolynomialFeatures(degree=1), ElasticNet(alpha=alpha))
+    # print("LinearML")
+    # lr = make_pipeline(StandardScaler(), LinearRegression())
     lr.fit(trainInput, trainTarget)
 
     # train
@@ -327,15 +373,28 @@ def PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl):
     # test
     print(lr.score(testInput, testTarget))
     
+    for i in range(11):
+        path = f"D:/myproject/GAIProject1/resources/dev02/비율2회분할/data/{2009+i}.csv"
+        df = pd.read_csv(path, encoding=encoding)
+        df = df[df["industryType"] == cl]
+        df = df[columnListyear]
+        df = lr.predict(df.values)
+        
+        if os.path.exists(f"{cl}") == False:
+            os.mkdir(f"{cl}")
+        df = pd.DataFrame(df, columns=columnListyear)
+        df.to_csv(f"{cl}/{2010+i}.csv", index=False, encoding="utf-8-sig")
+
     path = r"D:\myproject\GAIProject1\resources\dev02\비율2회분할\target\2019.csv"
     if os.path.exists(f"{cl}") == False:
         os.mkdir(f"{cl}")
     df = pd.read_csv(path, encoding=encoding)
     df = df[df["industryType"] == cl]
-    df = df[columnList]
+    df = df[columnListyear]
     for i in range(20):
+        df["yearData"] = 2020+i
         df = lr.predict(df.values)
-        df = pd.DataFrame(df, columns=columnList)
+        df = pd.DataFrame(df, columns=columnListyear)
         df.to_csv(f"{cl}/{2021+i}.csv", index=False, encoding="utf-8-sig")
     
 
