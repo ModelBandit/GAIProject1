@@ -107,14 +107,6 @@ class ConnectDB:
         self.sql_on()
         queryList = []
         queryList.append("""
-            CREATE TABLE PredictIndustryCountData (
-            dataId NUMBER(4) PRIMARY KEY,
-            dataYear NUMBER(4),
-            industryType VARCHAR2(60),
-            companyCount NUMBER(10,4),
-            workerCount NUMBER(10,4)
-            )""")
-        queryList.append("""
             CREATE TABLE PredictCompanyData (
             dataId NUMBER(4) PRIMARY KEY,
             dataYear NUMBER(4),
@@ -167,6 +159,20 @@ class ConnectDB:
             avgFixedSalary NUMBER(10,4),
             avgOvertimeSalary NUMBER(10,4),
             avgBonusSalary NUMBER(10,4)
+            )""")
+        queryList.append("""
+            CREATE TABLE PredictIndustryCountData (
+            dataId NUMBER(4) PRIMARY KEY,
+            dataYear NUMBER(4),
+            industryType VARCHAR2(60),
+            companyCount NUMBER(10,4),
+            workerCount NUMBER(10,4),
+            companyDataId NUMBER(4),
+            workerDataId NUMBER(4),
+            avgDataId NUMBER(4),
+            CONSTRAINT fk_companyDataId FOREIGN KEY (companyDataId) REFERENCES PredictCompanyData(dataId)
+            CONSTRAINT fk_workerDataId FOREIGN KEY (bDaworkerDataIdtaId) REFERENCES PredictWorkerData(dataId)
+            CONSTRAINT fk_avgDataId FOREIGN KEY (avgDataId) REFERENCES PredictAvgData(dataId)
             )""")
 
         queryList.append("commit")
@@ -291,7 +297,7 @@ class ConnectDB:
             path = f"{directory}/{fileNames[fn]}"
             year = int(fileNames[fn].split('.')[0])
             df = pd.read_csv(path, encoding=encoding)
-            idNum = fn*17
+            idNum = fn*17 + 1
             for i in range(len(df.index)):
                 for table in range(len(tableList)):
                     if table <= 0:
@@ -322,7 +328,7 @@ class ConnectDB:
 if __name__ == "__main__":
     db = ConnectDB()
     db.ImportPredictDataToOracle()
-    db.ImportRealDataToOracle()
+    # db.ImportRealDataToOracle()
 
 
 

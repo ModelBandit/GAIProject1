@@ -161,14 +161,14 @@ def testML():
     for i in range(1, 17):
         inputDataDir = r"resources\dev02\비율2회분할\data"
         inputDf = loadAllData(inputDataDir, engColumnList)
-        # targetDataDir = r"resources\dev02\비율2회분할\target"
-        # targetDf = loadAllData(targetDataDir, engColumnList)
+        targetDataDir = r"resources\dev02\비율2회분할\target"
+        targetDf = loadAllData(targetDataDir, engColumnList)
 
         cl = customKeyCodeList[i]
         inputDf = inputDf[inputDf["industryType"] == cl]
-        # targetDf = targetDf[targetDf["industryType"] == cl]
+        targetDf = targetDf[targetDf["industryType"] == cl]
         inputDf = inputDf[columnListyear]
-        # targetDf = targetDf[columnListyear]
+        targetDf = targetDf[columnListyear]
         # PolynomialLinearML(inputDf, targetDf, inputDf, targetDf, cl)
 
         # for i in range(len(columnList)):
@@ -188,7 +188,7 @@ def testML():
         # plt.show()
 
         # for i in range(10):
-        # trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
+        trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
         # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl)
     # trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int  , columnList[5]:int, columnList[6]:int, columnList[7]:int})
@@ -211,8 +211,8 @@ def testML():
 
         
         # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget)
-        # RidgeML(trainInput, trainTarget, testInput, testTarget)
-        # LassoML(trainInput, trainTarget, testInput, testTarget)
+        RidgeML(trainInput, trainTarget, testInput, testTarget)
+        LassoML(trainInput, trainTarget, testInput, testTarget)
     
     
 
@@ -405,7 +405,7 @@ def PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl):
 def RidgeML(trainInput, trainTarget, testInput, testTarget):
 
     print("RidgeML")
-    alphaList = [0.001,0.01,0.1,1,10,100]
+    alphaList = [0.000001, 0.00001, 0.0001, 0.001,0.01,0.1,1,10,100,1000,10000,100000]
     for alpha in alphaList:
         print(f"RidgeML - alpha: {alpha}")
         ridge = make_pipeline(StandardScaler(), Ridge(alpha=alpha))
@@ -421,8 +421,7 @@ def LassoML(trainInput, trainTarget, testInput, testTarget):
 
     print("LassoML")
     
-    alpha = 1
-    alphaList = [0.001,0.01,0.1,1,10,100]
+    alphaList = [0.000001, 0.00001, 0.0001, 0.001,0.01,0.1,1,10,100,1000,10000,100000]
     for alpha in alphaList:
         print(f"LassoML - alpha: {alpha}")
         lasso = make_pipeline(StandardScaler(), Lasso(alpha=alpha))
