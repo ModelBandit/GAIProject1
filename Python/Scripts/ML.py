@@ -49,8 +49,8 @@ columnList = [
               "fulltimeWorkerRate", "dayWorkerRate",# "etcWorkerRate",
               "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
               "U50D100WorkerRate",# "U100D300WorkerRate",# "U300WorkerRate",
-            #   "avgAge",
-            #   "avgServYear","avgWorkDay",
+              "avgAge",
+              "avgServYear",#"avgWorkDay",
               #"avgTotalWorkTime",
             #   "avgRegularWorkDay",
               "avgOverWorkDay",
@@ -79,7 +79,7 @@ columnListyear = ["yearData",
             #   "avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
             ]
 
-targetColumnList = ["companyCount", "workerCount"] # "companyCount",
+targetColumnList = ["companyCount", "workerCount", "avgSalary"] # "companyCount",
 
 countTalbe = [
     "companyCount", "workerCount",
@@ -161,20 +161,20 @@ def testML():
     for i in range(1, 17):
         inputDataDir = r"resources\dev02\비율2회분할\data"
         inputDf = loadAllData(inputDataDir, engColumnList)
-        targetDataDir = r"resources\dev02\비율2회분할\target"
-        targetDf = loadAllData(targetDataDir, engColumnList)
+        # targetDataDir = r"resources\dev02\비율2회분할\target"
+        # targetDf = loadAllData(targetDataDir, engColumnList)
 
         cl = customKeyCodeList[i]
         inputDf = inputDf[inputDf["industryType"] == cl]
-        targetDf = targetDf[targetDf["industryType"] == cl]
-        inputDf = inputDf[columnListyear]
-        targetDf = targetDf[columnListyear]
-        # PolynomialLinearML(inputDf, targetDf, inputDf, targetDf, cl)
+        # targetDf = targetDf[targetDf["industryType"] == cl]
+        inputDf = inputDf[columnList]
+        # targetDf = targetDf[columnListyear]
+    #     # PolynomialLinearML(inputDf, targetDf, inputDf, targetDf, cl)
 
-        # for i in range(len(columnList)):
-        #     for j in range(len(columnList)):
-        #         cov = inputDf[[columnList[i], columnList[j]]].cov()
-        #         print(f"{columnList[i]} \n{columnList[j]} \n{cov}")
+    #     for i in range(len(columnList)):
+    #         for j in range(len(columnList)):
+    #             cov = inputDf[[columnList[i], columnList[j]]].cov()
+    #             print(f"{columnList[i]} \n{columnList[j]} \n{cov}")
 
         # 섞으려고 추가함
         # inputDf = pd.concat([trainInput, testInput])
@@ -188,19 +188,19 @@ def testML():
         # plt.show()
 
         # for i in range(10):
-        trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
+        # trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
         # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl)
     # trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int  , columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # trainTarget = trainTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
     # testTarget = testTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
 
-    # for target in targetColumnList:
-    #     df_corr = inputDf.copy()
-    #     df_corr['target'] = inputDf[target]
+        for target in targetColumnList:
+            df_corr = inputDf.copy()
+            df_corr['target'] = inputDf[target]
 
-    #     target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
-    #     print(target_corr)
+            target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
+            print(target_corr)
 
     # trainTarget = trainTarget[targetColumnList[0]].values.ravel()
     # testTarget = testTarget[targetColumnList[0]].values.ravel()
@@ -211,13 +211,13 @@ def testML():
 
         
         # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget)
-        RidgeML(trainInput, trainTarget, testInput, testTarget)
-        LassoML(trainInput, trainTarget, testInput, testTarget)
+        # RidgeML(trainInput, trainTarget, testInput, testTarget)
+        # LassoML(trainInput, trainTarget, testInput, testTarget)
     
     
 
-    # dtML = DecisionTreeML(trainInput, trainTarget, testInput, testTarget)
-    # rfML = RandomForestML(trainInput, trainTarget, testInput, testTarget)
+        # dtML = DecisionTreeML(trainInput, trainTarget, testInput, testTarget)
+        # rfML = RandomForestML(trainInput, trainTarget, testInput, testTarget)
     # erfML = ExtraRandomForestML(trainInput, trainTarget, testInput, testTarget)
     # gbr = GradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
     # hgbr = HistGradientBoostingRegressorML(trainInput, trainTarget, testInput, testTarget)
@@ -229,20 +229,20 @@ def testML():
     # lg = LGBMRegressor_ML(trainInput, trainTarget, testInput, testTarget)
 
     
-    # categories =["DecisionTreeML","RandomForestML","ExtraRandomForestML","GradientBoostingRegressorML","HistGradientBoostingRegressorML","XGBRegressor_ML","LGBMRegressor_ML"]
+        # categories =["LinearML","DecisionTreeML"]
 
-    # values1 = [dtML[0], rfML[0], erfML[0], gbr[0], hgbr[0], xg[0], lg[0]]
-    # values2 = [dtML[1], rfML[1], erfML[1], gbr[1], hgbr[1], xg[1], lg[1]]
+        # values1 = [lML[0], rfML[0]]
+        # values2 = [lML[1], rfML[1]]
 
-    # x = np.arange(len(categories))  # x축 위치 [0, 1, 2, ..., 19]
-    # width = 0.05  # 바 폭
-    
-    # plt.bar(x - width, values1, 0.1, label='Train')
-    # plt.bar(x + width, values2, 0.1, label='Test')
-    # plt.xticks(x, categories, rotation=45)  # x축 이름 및 회전
-    # plt.legend()
-    # plt.tight_layout()
-    # plt.show()
+        # x = np.arange(len(categories))  # x축 위치 [0, 1, 2, ..., 19]
+        # width = 0.05  # 바 폭
+        
+        # plt.bar(x - width, values1, 0.1, label='Train')
+        # plt.bar(x + width, values2, 0.1, label='Test')
+        # plt.xticks(x, categories, rotation=45)  # x축 이름 및 회전
+        # plt.legend()
+        # plt.tight_layout()
+        # plt.show()
     
 def LinearMLAIO():
     print("LinearMLAIO")
