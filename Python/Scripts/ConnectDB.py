@@ -158,76 +158,76 @@ class ConnectDB:
                 #    "avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
                 ]
         
-        tableList = [companyAndWorkerCount, companyDetail, workerDetail, workEnv]
+        tableList = [companyDetail, workerDetail, workEnv, companyAndWorkerCount]
 
         self.sql_on()
         queryList = []
-        # queryList.append("""
-        #     CREATE TABLE PredictCompanyData (
-        #     dataId NUMBER(4) PRIMARY KEY,
-        #     dataYear NUMBER(4),
-        #     industryType VARCHAR2(60),
-        #     ownerMaleRate NUMBER(10,4),
-        #     U1D5CompanyRate NUMBER(10,4),
-        #     U5D10CompanyRate NUMBER(10,4),
-        #     U10D20CompanyRate NUMBER(10,4),
-        #     U20D50CompanyRate NUMBER(10,4),
-        #     U50D100CompanyRate NUMBER(10,4),
-        #     )""")
-        # queryList.append("""
-        #     CREATE TABLE PredictWorkerData (
-        #     dataId NUMBER(4) PRIMARY KEY,
-        #     dataYear NUMBER(4),
-        #     industryType VARCHAR2(60),
-        #     workerMaleRate NUMBER(10,4),
-        #     fulltimeWorkerRate NUMBER(10,4),
-        #     dayWorkerRate NUMBER(10,4),
-        #     U1D5WorkerRate NUMBER(10,4),
-        #     U5D10WorkerRate NUMBER(10,4),
-        #     U10D20WorkerRate NUMBER(10,4),
-        #     U20D50WorkerRate NUMBER(10,4),
-        #     U50D100WorkerRate NUMBER(10,4),
-        #     )""")
-        # queryList.append("""
-        #     CREATE TABLE PredictAvgData (
-        #     dataId NUMBER(4) PRIMARY KEY,
-        #     dataYear NUMBER(4),
-        #     industryType VARCHAR2(60),
-        #     avgOverWorkDay NUMBER(10,4),
-        #     avgSalary NUMBER(10,4),
-        #     )""")
-        # queryList.append("""
-        #     CREATE TABLE PredictIndustryCountData (
-        #     dataId NUMBER(4) PRIMARY KEY,
-        #     dataYear NUMBER(4),
-        #     industryType VARCHAR2(60),
-        #     companyCount NUMBER,
-        #     workerCount NUMBER,
-        #     companyDataId NUMBER(4),
-        #     workerDataId NUMBER(4),
-        #     avgDataId NUMBER(4),
-        #     CONSTRAINT fk_companyDataId FOREIGN KEY (companyDataId) REFERENCES PredictCompanyData(dataId)
-        #     CONSTRAINT fk_workerDataId FOREIGN KEY (bDaworkerDataIdtaId) REFERENCES PredictWorkerData(dataId)
-        #     CONSTRAINT fk_avgDataId FOREIGN KEY (avgDataId) REFERENCES PredictAvgData(dataId)
-        #     )""")
+        queryList.append("""
+            CREATE TABLE PredictCompanyData (
+            dataId NUMBER(4) PRIMARY KEY,
+            dataYear NUMBER(4),
+            industryType VARCHAR2(60),
+            ownerMaleRate NUMBER(10,4),
+            U1D5CompanyRate NUMBER(10,4),
+            U5D10CompanyRate NUMBER(10,4),
+            U10D20CompanyRate NUMBER(10,4),
+            U20D50CompanyRate NUMBER(10,4),
+            U50D100CompanyRate NUMBER(10,4)
+            )""")
+        queryList.append("""
+            CREATE TABLE PredictWorkerData (
+            dataId NUMBER(4) PRIMARY KEY,
+            dataYear NUMBER(4),
+            industryType VARCHAR2(60),
+            workerMaleRate NUMBER(10,4),
+            fulltimeWorkerRate NUMBER(10,4),
+            dayWorkerRate NUMBER(10,4),
+            U1D5WorkerRate NUMBER(10,4),
+            U5D10WorkerRate NUMBER(10,4),
+            U10D20WorkerRate NUMBER(10,4),
+            U20D50WorkerRate NUMBER(10,4),
+            U50D100WorkerRate NUMBER(10,4)
+            )""")
+        queryList.append("""
+            CREATE TABLE PredictAvgData (
+            dataId NUMBER(4) PRIMARY KEY,
+            dataYear NUMBER(4),
+            industryType VARCHAR2(60),
+            avgOverWorkDay NUMBER(10,4),
+            avgSalary NUMBER(10,4)
+            )""")
+        queryList.append("""
+            CREATE TABLE PredictIndustryCountData (
+            dataId NUMBER(4) PRIMARY KEY,
+            dataYear NUMBER(4),
+            industryType VARCHAR2(60),
+            companyCount NUMBER,
+            workerCount NUMBER,
+            companyDataId NUMBER(4),
+            workerDataId NUMBER(4),
+            avgDataId NUMBER(4),
+            CONSTRAINT fk_companyDataId FOREIGN KEY (companyDataId) REFERENCES PredictCompanyData(dataId),
+            CONSTRAINT fk_workerDataId FOREIGN KEY (bDaworkerDataIdtaId) REFERENCES PredictWorkerData(dataId),
+            CONSTRAINT fk_avgDataId FOREIGN KEY (avgDataId) REFERENCES PredictAvgData(dataId)
+            )""")
 
-        # queryList.append("commit")
-        df = getAllDirDataList(r"D:\myproject\GAIProject1\predict")
+        queryList.append("commit")
+        df = getAllDirDataList(r"predict")
         for table in range(len(tableList)):
             newDF = df[tableList[table]]
             for i in range(len(newDF.index)):
                 if table <= 0:
                     # continue
-                    queryList.append(f"INSERT INTO PredictIndustryCountData VALUES (")
-                elif table == 1:
-                    continue
                     queryList.append(f"INSERT INTO PredictCompanyData VALUES (")
-                elif table == 2:
-                    continue
+                elif table == 1:
+                    # continue
                     queryList.append(f"INSERT INTO PredictWorkerData VALUES (")
-                elif table >= 3:
-                    continue
+                elif table == 2:
+                    # continue
                     queryList.append(f"INSERT INTO PredictAvgData VALUES (")
+                elif table >= 3:
+                    # continue
+                    queryList.append(f"INSERT INTO PredictIndustryCountData VALUES (")
 
                 data = newDF.iloc[i]
                 queryList[len(queryList)-1] += f"{i}"
@@ -330,7 +330,7 @@ class ConnectDB:
 
         queryList.append("commit")
         
-        directory = r"resources\dev02\data"
+        directory = r"resources\dev02\비율2회분할\origin"
         fileNames = os.listdir(directory)
         
         for fn in range(len(fileNames)):
