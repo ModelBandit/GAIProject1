@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 
-import seaborn as sns
+# import seaborn as sns
 import matplotlib.pyplot as plt
 
 from sklearn.linear_model import LinearRegression
@@ -17,6 +17,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 
+import joblib
 
 
 projectRoot = "./"
@@ -99,6 +100,25 @@ avgTalbe = [
     "avgAge","avgServYear","avgWorkDay","avgTotalWorkTime","avgRegularWorkDay","avgOverWorkDay","avgSalary","avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
 ]
 
+modelname =[
+	"agriculture",
+	"mining",
+	"manufacturing",
+	"electricity",
+	"construction",
+	"wholesale",
+	"transport",
+	"hospitality",
+	"it",
+	"finance" ,
+	"realestate" ,
+	"professional" ,
+	"education" ,
+	"health" ,
+	"culture",
+	"other"
+]
+
 
 customKeyCodeList =[ 
 "전체",
@@ -161,14 +181,14 @@ def testML():
     for i in range(1, 17):
         inputDataDir = r"resources\dev02\비율2회분할\data"
         inputDf = loadAllData(inputDataDir, engColumnList)
-        # targetDataDir = r"resources\dev02\비율2회분할\target"
-        # targetDf = loadAllData(targetDataDir, engColumnList)
+        targetDataDir = r"resources\dev02\비율2회분할\target"
+        targetDf = loadAllData(targetDataDir, engColumnList)
 
         cl = customKeyCodeList[i]
         inputDf = inputDf[inputDf["industryType"] == cl]
-        # targetDf = targetDf[targetDf["industryType"] == cl]
-        inputDf = inputDf[columnList]
-        # targetDf = targetDf[columnListyear]
+        targetDf = targetDf[targetDf["industryType"] == cl]
+        inputDf = inputDf[columnListyear]
+        targetDf = targetDf[columnListyear]
     #     # PolynomialLinearML(inputDf, targetDf, inputDf, targetDf, cl)
 
     #     for i in range(len(columnList)):
@@ -188,19 +208,19 @@ def testML():
         # plt.show()
 
         # for i in range(10):
-        # trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
+        trainInput, testInput, trainTarget, testTarget = train_test_split(inputDf, targetDf, test_size=0.2, random_state=42)
         # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl)
     # trainInput = trainInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int, columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # testInput = testInput.astype({columnList[0]:int, columnList[1]:int,columnList[2]:int,columnList[3]:int,columnList[4]:int  , columnList[5]:int, columnList[6]:int, columnList[7]:int})
     # trainTarget = trainTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
     # testTarget = testTarget.astype({targetColumnList[0]:int, targetColumnList[1]:int})
 
-        for target in targetColumnList:
-            df_corr = inputDf.copy()
-            df_corr['target'] = inputDf[target]
+        # for target in targetColumnList:
+        #     df_corr = inputDf.copy()
+        #     df_corr['target'] = inputDf[target]
 
-            target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
-            print(target_corr)
+        #     target_corr = df_corr.corr()['target'].drop('target').sort_values(ascending=False)
+        #     print(target_corr)
 
     # trainTarget = trainTarget[targetColumnList[0]].values.ravel()
     # testTarget = testTarget[targetColumnList[0]].values.ravel()
@@ -210,7 +230,10 @@ def testML():
         # lML = LinearML(trainInput, trainTarget, testInput, testTarget)
 
         
-        # PolynomialLinearML(trainInput, trainTarget, testInput, testTarget)
+        model = PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl)
+
+        joblib.dump(model, f"./model/{cl}.pkl")
+        
         # RidgeML(trainInput, trainTarget, testInput, testTarget)
         # LassoML(trainInput, trainTarget, testInput, testTarget)
     
@@ -362,7 +385,7 @@ def PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl):
     # for alpha in alphaList:
     alpha = 0.001
     print(f"RidgeML - alpha: {alpha}")
-    lr = make_pipeline(PolynomialFeatures(degree=1), ElasticNet(alpha=alpha))
+    lr = make_pipeline(PolynomialFeatures(degree=2), Ridge(alpha=alpha))
     # print("LinearML")
     # lr = make_pipeline(StandardScaler(), LinearRegression())
     lr.fit(trainInput, trainTarget)
@@ -373,29 +396,30 @@ def PolynomialLinearML(trainInput, trainTarget, testInput, testTarget, cl):
     # test
     print(lr.score(testInput, testTarget))
     
-    for i in range(11):
-        path = f"D:/myproject/GAIProject1/resources/dev02/비율2회분할/data/{2009+i}.csv"
-        df = pd.read_csv(path, encoding=encoding)
-        df = df[df["industryType"] == cl]
-        df = df[columnListyear]
-        df = lr.predict(df.values)
+    return lr
+    # for i in range(11):
+    #     path = f"D:/myproject/GAIProject1/resources/dev02/비율2회분할/data/{2009+i}.csv"
+    #     df = pd.read_csv(path, encoding=encoding)
+    #     df = df[df["industryType"] == cl]
+    #     df = df[columnListyear]
+    #     df = lr.predict(df.values)
         
-        if os.path.exists(f"{cl}") == False:
-            os.mkdir(f"{cl}")
-        df = pd.DataFrame(df, columns=columnListyear)
-        df.to_csv(f"{cl}/{2010+i}.csv", index=False, encoding="utf-8-sig")
+    #     if os.path.exists(f"{cl}") == False:
+    #         os.mkdir(f"{cl}")
+    #     df = pd.DataFrame(df, columns=columnListyear)
+    #     df.to_csv(f"{cl}/{2010+i}.csv", index=False, encoding="utf-8-sig")
 
-    path = r"D:\myproject\GAIProject1\resources\dev02\비율2회분할\target\2019.csv"
-    if os.path.exists(f"{cl}") == False:
-        os.mkdir(f"{cl}")
-    df = pd.read_csv(path, encoding=encoding)
-    df = df[df["industryType"] == cl]
-    df = df[columnListyear]
-    for i in range(20):
-        df["yearData"] = 2020+i
-        df = lr.predict(df.values)
-        df = pd.DataFrame(df, columns=columnListyear)
-        df.to_csv(f"{cl}/{2021+i}.csv", index=False, encoding="utf-8-sig")
+    # path = r"D:\myproject\GAIProject1\resources\dev02\비율2회분할\target\2019.csv"
+    # if os.path.exists(f"{cl}") == False:
+    #     os.mkdir(f"{cl}")
+    # df = pd.read_csv(path, encoding=encoding)
+    # df = df[df["industryType"] == cl]
+    # df = df[columnListyear]
+    # for i in range(20):
+    #     df["yearData"] = 2020+i
+    #     df = lr.predict(df.values)
+    #     df = pd.DataFrame(df, columns=columnListyear)
+    #     df.to_csv(f"{cl}/{2021+i}.csv", index=False, encoding="utf-8-sig")
     
 
     # df = pd.DataFrame(lr.predict(testInput), columns=columnList)
@@ -779,6 +803,53 @@ def DaskLGBMRegressor_ML(trainInput, trainTarget, testInput, testTarget):
 
     return scoreList
 
+import joblib
+
+model_dir = "./model"
+
+columnListyear = ["yearData",
+              "companyCount", 
+              "ownerMaleRate", #"ownerFemaleRate",
+            #   "singlePropCompanyRate", #"multiBusinessCompanyRate",
+              "U1D5CompanyRate", "U5D10CompanyRate", "U10D20CompanyRate", "U20D50CompanyRate", 
+              "U50D100CompanyRate", #"U100D300CompanyRate",# "U300CompanyRate",
+              "workerCount", 
+              "workerMaleRate",# "workerFemaleRate",
+            #   "singlePropWorkerRate",# "multiBusinessWorkerRate",
+            #   "selfEmpFamilyWorkerRate", 
+              "fulltimeWorkerRate", "dayWorkerRate",# "etcWorkerRate",
+              "U1D5WorkerRate", "U5D10WorkerRate", "U10D20WorkerRate", "U20D50WorkerRate", 
+              "U50D100WorkerRate",# "U100D300WorkerRate",# "U300WorkerRate",
+            #   "avgAge",
+            #   "avgServYear","avgWorkDay",
+              #"avgTotalWorkTime",
+            #   "avgRegularWorkDay",
+              "avgOverWorkDay",
+              "avgSalary",
+            #   "avgFixedSalary","avgOvertimeSalary","avgBonusSalary"
+            ]
+
+def run(last_data, target_industry, predict_range):
+    df = pd.read_csv(last_data, encoding="utf-8-sig")
+    df = df[df["industryType"] == target_industry]
+    df = df[columnListyear]
+    
+    dfList = []
+    newDf = copy.copy(df)
+    newDf.values[0] = 2020
+    lr = joblib.load(f"{model_dir}/{target_industry}.pkl")
+
+    for year in range(2021,2020+predict_range+1):
+        newDf = lr.predict(newDf)
+        dfList.append(newDf)
+        newDf = copy.copy(newDf)
+        newDf[0][0] = year
+
+
+    for d in dfList:
+        print(d)
+
 if __name__ == "__main__":
-    testML()
+    run(r"resources\dev02\비율2회분할\target\2019.csv", "광업", 5)
+    # testML()
     # LinearMLAIO()
